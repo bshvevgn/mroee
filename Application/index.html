@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Higlight House Config+</title>
+    <link rel="stylesheet" href="resources/css/style.css">
+</head>
+
+<body>
+    <div id="preloader"></div>
+    <div id="modalWindowBack" class="hiddenModalBack">
+        <div class="modalWindow closedModalWindow" id="connectionWindow">
+            <!--<div class="closeButton" onClick="closeModalWindow('connectionWindow')"></div>-->
+            <div style="display: flex; flex-direction: row; align-items: center;">
+                <h2>Не сработало.</h2>
+            </div>
+            <p class="errorMessage">Сбой подключения к SwiftController. Пожалуйста, проверьте USB соединение и повторите
+                попытку.</p>
+            <div class="imageWrapper" id="deviceConnectImage"></div>
+        </div>
+    </div>
+    <header>
+        <div class="icon" id="mainLogo"></div>
+    </header>
+    <aside>
+        <div class="buttonsContainer">
+            <div class="asideButton activeButton" id="iconsSetButton" onclick="selectContent(this)">
+                <div class="icon" style="background-image: url(resources/icons/screens.png);"></div>
+                <p>Настройка экранов</p>
+            </div>
+            <div class="asideButton" id="keysSetButton" onclick="selectContent(this)">
+                <div class="icon" style="background-image: url(resources/icons/keyboard.png);"></div>
+                <p>Сочетания клавиш</p>
+            </div>
+            <div class="asideButton" id="infoButton" onclick="selectContent(this)">
+                <div class="icon" style="background-image: url(resources/icons/info.png);"></div>
+                <p>Об устройстве</p>
+            </div>
+        </div>
+    </aside>
+    <div class="content" id="iconsSet">
+        <div class="pageHead">
+            <h1>Настройка экранов</h1>
+            <p>Выберите необходимый значок для каждого из экранов</p>
+        </div>
+        <div id="previewBox">
+            <div id="preview">
+                <div class="previewIconBox" id="iconBox1" style="top: 76px; left: 76px">
+                    <div class="icon previewIcon" style="background-image: url();"></div>
+                </div>
+                <div class="previewIconBox" id="iconBox2" style="top: 76px; left: calc(50% + 37px)">
+                    <div class="icon previewIcon" style="background-image: url();"></div>
+                </div>
+                <div class="previewIconBox" id="iconBox3" style="top: calc(50% + 35px); left: 76px">
+                    <div class="icon previewIcon" style="background-image: url();"></div>
+                </div>
+                <div class="previewIconBox" id="iconBox4" style="top: calc(50% + 35px); left: calc(50% + 35px)">
+                    <div class="icon previewIcon" style="background-image: url();"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="content hiddenContent" id="keysSet">
+        <div class="semiScreen">
+            <h1>Сочетания клавиш</h1>
+            <h2>Добавить новое сочитание</h2>
+            <div id="keysInputBox">
+                <div class="icon" id="clearInputButton" style="background-image: url(resources/icons/close.png);"></div>
+            </div>
+            <div id="saveButton">
+                <p>Добавить сочетание</p>
+            </div>
+        </div>
+        <div class="semiScreen" style="padding: 86px 30px 0px 30px;">
+            <h2>Добавленные сочетания</h2>
+            <div id="combinationsBox"></div>
+        </div>
+    </div>
+    <div class="content hiddenContent" id="info">
+        <h1>Об устройстве</h1>
+        <p>SwiftController v. 1.0<br>
+            <span id="serialNumber"></span>
+        </p>
+    </div>
+    <script src="dist/renderer/main.js" defer></script>
+</body>
+
+</html>

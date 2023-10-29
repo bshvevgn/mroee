@@ -1,0 +1,454 @@
+@font-face {
+    font-family: Manrope;
+    src: url(../fonts/Manrope.ttf);
+}
+
+body{
+    background-color: rgb(0, 0, 0);
+    margin: 0;
+}
+
+h1, h2, p{
+    font-family: 'Manrope', sans-serif;
+    color: white;
+}
+
+header{
+    height: 40px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    width: calc(100% - 60px);
+    position: fixed;
+    -webkit-app-region: drag;
+    backdrop-filter: blur(20px);
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+#preloader{
+    position: fixed;
+    z-index: 10000;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: white;
+    background-image: url(../icons/logo.png);
+    background-position: center;
+    background-size: 100px 100px;
+    background-repeat: no-repeat;
+    filter: invert(1);
+    max-height: 10000px;
+    transition: .4s;
+}
+
+.hiddenPreloader{
+    transition: opacity 400ms 0ms, max-height 0ms 400ms!important;
+    opacity: 0;
+    max-height: 0px!important;
+}
+
+.icon{
+    height: 30px;
+    width: 30px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+#mainLogo{
+    background-image: url(../icons/logo.png);
+    height: 40px;
+    width: 40px;
+    filter: invert(1);
+}
+
+aside{
+    height: calc(100vh - 60px);
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    padding: 30px
+}
+
+.buttonsContainer{
+    background-color: rgb(42, 42, 42);
+    height: fit-content;
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    padding: 6px;
+    border-radius: 34px;
+
+}
+
+.asideButton{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: fit-content;
+    width: max-content;
+    align-items: center;
+    padding: 16px 22px;
+    border-radius: 30px;
+    flex-wrap: nowrap;
+    width: calc(100% - 44px);
+    transition: .1s;
+}
+
+.activeButton{
+    background-color: rgb(30, 30, 30);
+}
+
+.asideButton:not(.activeButton):hover{
+    background-color: rgb(60, 60, 60);
+}
+
+.asideButton p{
+    margin: 0px 0px 0px 14px;
+}
+
+.content{
+    width: calc(100vw - 334px);
+    padding: 80px 30px 30px 30px;
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    overflow-y: scroll;
+    height: calc(100vh - 110px);
+    max-width: 5000px;
+    transform: scale(1);
+    transition: opacity 300ms 300ms, max-width 0ms 300ms, transform 300ms 300ms, filter 300ms 300ms;
+}
+
+.pageHead{
+    width: 100%;
+    height: fit-content;
+    float: left;
+    height: 88px;
+}
+
+.pageHead h1{
+    margin-bottom: 0px;
+    width: 100%;
+}
+
+.pageHead p{
+    margin: 0px;
+}
+
+.hiddenContent{
+    touch-action: none;
+    transform: scale(0.96);
+    filter: blur(20px);
+    max-width: 0px;
+    transition: opacity 300ms 0ms, max-width 0ms 300ms, transform 300ms 0ms, filter 300ms 0ms;
+    opacity: 0;
+}
+
+#previewBox{
+    height: calc(100% - 88px);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#preview{
+    height: 500px;
+    width: 500px;
+    border-radius: 50px;
+    background-image: url("../images/screens.webp");
+    background-size: cover;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+.previewIconBox:hover, .previewIconBox:active {
+    transition: 200ms 0ms;
+    border: 8px solid rgba(255, 255, 255, 0.4);
+}
+
+.previewIconBox{
+    border: 8px solid rgba(255, 255, 255, 0.0);
+    border-radius: 20px;
+    height: 126px;
+    width: 126px;
+    position: absolute;
+    transition: 200ms 100ms;
+}
+
+.iconMenu{
+    height: fit-content;
+    width: max-content;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    border-radius: 24px;
+    background-color: rgb(52 52 52 / 50%);
+    transform: translate(calc(-100% - 30px), calc(-50% + 60px));
+    filter: drop-shadow(0px 20px 20px rgba(0, 0, 0, 0.6));
+    max-height: 300px;
+    overflow: auto;
+    flex-wrap: nowrap;
+    opacity: 1;
+    transition: .2s;
+    backdrop-filter: blur(12px);
+}
+
+.iconMenu::-webkit-scrollbar {
+    display: none;
+}
+
+.menuDrop{
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translate(0px, -50%);
+    background-image: url(../icons/menuDrop.webp);
+}
+
+.listElement{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: calc(100% - 44px);
+    height: fit-content;
+    align-items: center;
+    padding: 16px 22px;
+    border-radius: 20px;
+    color: white;
+    font-family: 'Manrope', sans-serif;
+    transition: .2s;
+    cursor: default;
+}
+
+.hidden{
+    opacity: 0;
+}
+
+.listElement .icon{
+    margin-right: 10px;
+}
+
+.listElement:hover{
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.previewIcon{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(calc(-50% - 4px), calc(-50% - 6px));
+    height: 46px;
+    width: 46px;
+    opacity: .8;
+    filter: drop-shadow(0px 0px 20px rgba(255, 255, 255, 1));
+}
+
+.modalWindow {
+    transition: height 0ms 0ms, opacity 300ms 0ms, transform 300ms 0ms, filter 300ms 50ms;
+    opacity: 1;
+    filter: blur(0px);
+    transform: scale(1) translate(-50%, -50%);
+    z-index: 100;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    top: 50%;
+    left: 50%;
+    background-color: rgb(0 0 0 / 50%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+    max-height: 800px;
+    border-radius: 24px;
+}
+
+.modalWindow h2{
+    margin: 0px;
+}
+
+.closedModalWindow {
+    touch-action: none;
+    overflow: hidden !important;
+    transform: translate(-50%, -50%) scale(1.2) !important;
+    max-height: 0 !important;
+    opacity: 0 !important;
+    padding: 0 !important;
+    filter: blur(10px);
+    transition: max-height 0ms 400ms, padding 0ms 400ms, opacity 400ms 0ms, transform 300ms 0ms, filter 300ms 0ms !important;
+}
+
+.modalWindow .subtitle {
+    margin-right: 100px;
+}
+
+.modalWindow .imageWrapper {
+    opacity: .9;
+}
+
+.closeButton {
+    height: 30px;
+    width: 30px;
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    background-image: url(../icons/close.png);
+    background-size: cover;
+    cursor: pointer;
+    z-index: 10;
+    transition: .2s;
+}
+
+#modalWindowBack {
+    transition: height 0ms 0ms, opacity 300ms 0ms;
+    z-index: 99;
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    background-color: rgba(0, 0, 0, 0.1);
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 1001;
+    opacity: 1
+}
+
+.hiddenModalBack {
+    height: 1px !important;
+    top: -1px !important;
+    opacity: 0 !important;
+    transition: height 0ms 400ms, opacity 400ms 0ms !important
+}
+
+#keysInputBox {
+    min-width: 100px;
+    height: 34px;
+    padding: 8px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 16px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.0);
+    transition: .2s;
+    position: relative;
+}
+
+#keysInputBox:hover #clearInputButton{
+    opacity: 1;
+}
+
+#keysInputBox div{
+    padding: 8px 16px;
+    background-color: black;
+    color: white;
+    font-family: 'Manrope', sans-serif;
+    border-radius: 10px;
+    margin-right: 8px;
+    transition: .2s;
+    transform: scale(1);
+    filter: blur(0px);
+}
+
+.hiddenKey{
+    transition: .2s;
+    transform: scale(0.9);
+    filter: blur(8px);
+}
+
+#clearInputButton{
+    transition: .2s;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: calc(50% - 10px);
+    left: calc(100% - 40px);
+    padding: 0px!important;
+    background-color: transparent!important;
+    opacity: 0;
+}
+
+#saveButton{
+    width: fit-content;
+    height: fit-content;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    border-radius: 50px;
+    background-color: rgba(255, 255, 255, 0.3);
+    margin-top: 10px;
+}
+
+#saveButton p{
+    margin: 0px;
+    color: white;
+}
+
+#combinationsBox{
+    width: 100%;
+    height: fit-content;
+    display: flex;
+    flex-direction: row;
+    border-radius: 16px;
+    flex-wrap: wrap;
+}
+
+.combination{
+    width: fit-content;
+    height: fit-content;
+    padding: 16px 22px;
+    background-color: rgba(255, 255, 255, 0.3);
+    color: white;
+    font-family: 'Manrope', sans-serif;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    margin-right: 14px;
+    margin-bottom: 14px;
+    transform: scale(1);
+    filter: blur(0px);
+    transition: .3s;
+}
+
+.hiddenCombination{
+    transform: scale(1.14);
+    filter: blur(8px);
+}
+
+.semiScreen{
+    width: calc(50% - 60px);
+    padding: 0px 30px 0px 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+#keysSet{
+    display: flex;
+}
+
+.imageWrapper{
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+#deviceConnectImage{
+    background-image: url(../images/cable.png);
+    height: 120px;
+    width: 60px;
+    margin-bottom: -30px;
+    margin-top: 14px;
+    opacity: 1;
+}
