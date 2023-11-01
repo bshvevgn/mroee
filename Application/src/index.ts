@@ -2,6 +2,7 @@ import {BrowserView, BrowserWindow, app, ipcMain} from "electron";
 
 let mainWindow : BrowserWindow;
 
+app.setName('mroee /connect');
 app.on("ready", createWindows);
 
 function createWindows (): void {
@@ -13,6 +14,7 @@ function createWindows (): void {
             contextIsolation: false
         },
         show: false,
+        title: 'mroee /connect',
         titleBarStyle: 'hidden',
         trafficLightPosition: { x: 10, y: 10 }
     });

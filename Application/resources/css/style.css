@@ -3,14 +3,21 @@
     src: url(../fonts/Manrope.ttf);
 }
 
+@font-face {
+    font-family: Coolvetica;
+    src: url(../fonts/Coolvetica.ttf);
+}
+
 body{
     background-color: rgb(0, 0, 0);
     margin: 0;
+    -webkit-user-select: none;
 }
 
 h1, h2, p{
     font-family: 'Manrope', sans-serif;
     color: white;
+    cursor: default;
 }
 
 header{
@@ -36,13 +43,22 @@ header{
     top: 0;
     left: 0;
     background-color: white;
-    background-image: url(../icons/logo.png);
+    /*background-image: url(../icons/logo.png);*/
     background-position: center;
     background-size: 100px 100px;
     background-repeat: no-repeat;
     filter: invert(1);
     max-height: 10000px;
     transition: .4s;
+}
+
+#preloader video{
+    width: 40%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    filter: invert(1);
 }
 
 .hiddenPreloader{
@@ -105,7 +121,7 @@ aside{
 }
 
 .activeButton{
-    background-color: rgb(30, 30, 30);
+    background-color: rgb(0, 0, 0);
 }
 
 .asideButton:not(.activeButton):hover{
@@ -339,27 +355,35 @@ aside{
     display: flex;
     flex-direction: row;
     align-items: center;
-    border-radius: 16px;
+    border-radius: 30px;
     background-color: rgba(255, 255, 255, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.0);
     transition: .2s;
     position: relative;
 }
 
-#keysInputBox:hover #clearInputButton{
+/*#keysInputBox:hover #clearInputButton{
     opacity: 1;
-}
+}*/
 
-#keysInputBox div{
+#keysInputBox .keyBox{
     padding: 8px 16px;
     background-color: black;
     color: white;
     font-family: 'Manrope', sans-serif;
     border-radius: 10px;
-    margin-right: 8px;
+    margin-right: 4px;
     transition: .2s;
     transform: scale(1);
     filter: blur(0px);
+}
+
+#keysInputBox .firstKey{
+    border-radius: 30px 14px 14px 30px;
+}
+
+.active{
+    border: 1px solid rgba(255, 255, 255, 0.6)!important;
 }
 
 .hiddenKey{
@@ -406,6 +430,7 @@ aside{
 }
 
 .combination{
+    position: relative;
     width: fit-content;
     height: fit-content;
     padding: 16px 22px;
@@ -422,9 +447,41 @@ aside{
     transition: .3s;
 }
 
+.combination p{
+    margin: 0px;
+    transition: .3s;
+}
+
+.combination:hover .combinationRemoveButton{
+    opacity: 1;
+    transform: scale(1);
+}
+
+.combination:hover p{
+    filter: blur(10px);
+}
+
 .hiddenCombination{
     transform: scale(1.14);
     filter: blur(8px);
+    opacity: 0;
+}
+
+.combinationRemoveButton{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0px;
+    left: 0px;
+    border-radius: 30px;
+    background-color: rgba(0, 0, 0, 0.1);
+    background-image: url(../icons/trash.png);
+    background-position: center;
+    background-size: 28px 28px;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: .3s;
+    transform: scale(0.7);
 }
 
 .semiScreen{
@@ -451,4 +508,47 @@ aside{
     margin-bottom: -30px;
     margin-top: 14px;
     opacity: 1;
+}
+
+.hint{
+    opacity: .7;
+}
+
+.shake{
+    animation: shake 400ms ease-in-out;
+}
+
+.button{
+    transition: .2s;
+    transform: scale(1);
+}
+
+.button:active{
+    transform: scale(0.93);
+}
+
+@keyframes shake {
+    0%{
+        transform: translate(0px, 0px);
+    }
+
+    20%{
+        transform: translate(-8px, 0px);
+    }
+
+    40%{
+        transform: translate(8px, 0px);
+    }
+
+    60%{
+        transform: translate(-8px, 0px);
+    }
+
+    80%{
+        transform: translate(8px, 0px);
+    }
+
+    100%{
+        transform: translate(0px, 0px);
+    }
 }

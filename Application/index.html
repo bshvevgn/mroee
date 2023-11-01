@@ -4,19 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Higlight House Config+</title>
+    <title>mroee /connect</title>
     <link rel="stylesheet" href="resources/css/style.css">
 </head>
 
 <body>
-    <div id="preloader"></div>
+    <div id="preloader">
+        <video autoplay muted no-controls>
+            <source src="resources/images/main_animation.mp4">
+        </video>
+    </div>
     <div id="modalWindowBack" class="hiddenModalBack">
         <div class="modalWindow closedModalWindow" id="connectionWindow">
             <!--<div class="closeButton" onClick="closeModalWindow('connectionWindow')"></div>-->
             <div style="display: flex; flex-direction: row; align-items: center;">
                 <h2>Не сработало.</h2>
             </div>
-            <p class="errorMessage">Сбой подключения к SwiftController. Пожалуйста, проверьте USB соединение и повторите
+            <p class="errorMessage">Сбой подключения mroee. Пожалуйста, проверьте USB соединение и повторите
                 попытку.</p>
             <div class="imageWrapper" id="deviceConnectImage"></div>
         </div>
@@ -65,16 +69,17 @@
     <div class="content hiddenContent" id="keysSet">
         <div class="semiScreen">
             <h1>Сочетания клавиш</h1>
-            <h2>Добавить новое сочитание</h2>
+            <h2>Добавить новое сочетание</h2>
             <div id="keysInputBox">
                 <div class="icon" id="clearInputButton" style="background-image: url(resources/icons/close.png);"></div>
             </div>
-            <div id="saveButton">
+            <div id="saveButton" class="button">
                 <p>Добавить сочетание</p>
             </div>
         </div>
         <div class="semiScreen" style="padding: 86px 30px 0px 30px;">
-            <h2>Добавленные сочетания</h2>
+            <h2>Сохранённые сочетания</h2>
+            <p style="margin-top: -10px;" class="hint" id="emptyCombinationsHint">Нет добавленных сочетаний</p>
             <div id="combinationsBox"></div>
         </div>
     </div>

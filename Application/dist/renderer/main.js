@@ -8,7 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-setTimeout(() => { var _a; return (_a = document.getElementById('preloader')) === null || _a === void 0 ? void 0 : _a.classList.add('hiddenPreloader'); }, 1600);
+setTimeout(() => { var _a; return (_a = document.getElementById('preloader')) === null || _a === void 0 ? void 0 : _a.classList.add('hiddenPreloader'); }, 2000);
 const { SerialPort } = require('serialport');
 let isConnected = true;
 let receivedData = false;
@@ -186,6 +186,7 @@ previewIconBoxes.forEach((previewIconBox) => {
 const asideButtons = document.querySelectorAll('.asideButton');
 const contentBoxes = document.querySelectorAll('.content');
 function selectContent(button) {
+    update();
     let buttonID = button.id;
     let id = buttonID.substring(0, buttonID.length - 6);
     asideButtons.forEach(button => {
@@ -204,28 +205,39 @@ function closeModalWindow(ID) {
     document.getElementById("modalWindowBack").classList.add("hiddenModalBack");
 }
 function showModalWindow(ID) {
-    document.getElementById(ID + "Window").classList.remove('closedModalWindow');
-    document.getElementById("modalWindowBack").classList.remove("hiddenModalBack");
+    //document.getElementById(ID + "Window")!.classList.remove('closedModalWindow');
+    //document.getElementById("modalWindowBack")!.classList.remove("hiddenModalBack");
 }
 const keysInputBox = document.getElementById("keysInputBox");
 const saveButton = document.getElementById("saveButton");
 const combinationsBox = document.getElementById("combinationsBox");
+const clearButton = document.getElementById("clearInputButton");
 const combinations = [];
 let buttonsCount = 0;
 function trackKeyPress(event) {
-    keysInputBox.style.border = "1px solid rgba(255, 255, 255, 0.6)";
     buttonsCount++;
+    if (buttonsCount > 0) {
+        clearButton.style.opacity = "1";
+    }
+    else {
+        clearButton.style.opacity = "0";
+    }
     if (buttonsCount < 5) {
         event.preventDefault();
-        const keyName = event.key;
+        let keyName = event.key;
+        if (keyName == " ") {
+            keyName = "space";
+        }
         const keyDiv = document.createElement("div");
         keyDiv.textContent = keyName.toUpperCase();
+        keyDiv.classList.add("keyBox");
+        if (buttonsCount == 1)
+            keyDiv.classList.add("firstKey");
         keyDiv.classList.add("hiddenKey");
         keysInputBox.appendChild(keyDiv);
         setTimeout(() => keyDiv.classList.remove("hiddenKey"), 10);
     }
 }
-const clearButton = document.getElementById("clearInputButton");
 function clearCombination() {
     const divs = keysInputBox.querySelectorAll("div");
     const innerTextArray = [];
@@ -235,27 +247,87 @@ function clearCombination() {
             div.remove();
         }
     });
+    clearButton.style.opacity = "0";
 }
+const emptyCombinationsHint = document.getElementById('emptyCombinationsHint');
 function saveCombination() {
     const divs = keysInputBox.querySelectorAll("div");
     const innerTextArray = [];
     divs.forEach((div) => {
-        innerTextArray.push(div.innerText);
+        if (div != clearButton)
+            innerTextArray.push(div.innerText);
     });
     let combinationText = innerTextArray.join(" + ");
     if (combinationText == null) {
         combinationText = "";
     }
+    if (divs.length == 1) {
+        keysInputBox.classList.add("shake");
+        setTimeout(() => keysInputBox.classList.remove("shake"), 400);
+        return;
+    }
     combinations.push(combinationText);
-    keysInputBox.textContent = "";
+    emptyCombinationsHint.style.display = "none";
+    divs.forEach((div) => {
+        if (div != clearButton) {
+            div.remove();
+        }
+    });
+    clearButton.style.opacity = "0";
     const combinationDiv = document.createElement("div");
+    const combinationTextBlock = document.createElement("p");
     combinationDiv.classList.add("combination");
     combinationDiv.classList.add("hiddenCombination");
-    combinationDiv.textContent = combinationText;
+    combinationTextBlock.innerHTML = combinationText;
+    const combinationRemoveButton = document.createElement("div");
+    combinationRemoveButton.classList.add("combinationRemoveButton");
+    combinationDiv.appendChild(combinationRemoveButton);
+    combinationDiv.appendChild(combinationTextBlock);
     combinationsBox.appendChild(combinationDiv);
+    combinationDiv.addEventListener("click", () => removeCombination(combinationDiv));
     setTimeout(() => combinationDiv.classList.remove("hiddenCombination"), 10);
     buttonsCount = 0;
 }
-document.addEventListener("keydown", trackKeyPress);
+let listenKeys = false;
+//keysInputBox.addEventListener("click", keysListener);
 saveButton.addEventListener("click", saveCombination);
 clearButton.addEventListener("click", clearCombination);
+setActive(keysInputBox);
+function setActive(targetElement, containerElement = document) {
+    containerElement.addEventListener('click', (event) => {
+        const clickedElement = event.target;
+        if (clickedElement === targetElement || targetElement.contains(clickedElement)) {
+            targetElement.classList.add('active');
+            if (!listenKeys)
+                keysListener();
+        }
+        else {
+            targetElement.classList.remove('active');
+            if (listenKeys)
+                keysListener();
+        }
+    });
+}
+function keysListener() {
+    if (listenKeys) {
+        document.removeEventListener("keydown", trackKeyPress);
+        listenKeys = !listenKeys;
+    }
+    else {
+        document.addEventListener("keydown", trackKeyPress);
+        listenKeys = !listenKeys;
+    }
+}
+function removeCombination(box) {
+    box.classList.add("hiddenCombination");
+    setTimeout(() => { box.remove(); update(); }, 200);
+}
+function update() {
+    const combinationBoxes = document.querySelectorAll(".combination");
+    if (combinationBoxes.length > 0) {
+        emptyCombinationsHint.style.display = "none";
+    }
+    else {
+        emptyCombinationsHint.style.display = "block";
+    }
+}

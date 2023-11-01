@@ -1,4 +1,4 @@
-setTimeout(() => document.getElementById('preloader')?.classList.add('hiddenPreloader'), 1600);
+setTimeout(() => document.getElementById('preloader')?.classList.add('hiddenPreloader'), 2000);
 
 const { SerialPort } = require('serialport')
 
@@ -195,11 +195,12 @@ previewIconBoxes.forEach((previewIconBox) => {
   new IconsPopup(previewIconBox);
 });
 
-
 const asideButtons = document.querySelectorAll<HTMLTableElement>('.asideButton');
 const contentBoxes = document.querySelectorAll<HTMLTableElement>('.content');
 
 function selectContent(button: HTMLElement) {
+  update();
+
   let buttonID = button.id;
   let id = buttonID.substring(0, buttonID.length - 6);
 
@@ -226,36 +227,47 @@ function closeModalWindow(ID: string) {
 }
 
 function showModalWindow(ID: string) {
-  document.getElementById(ID + "Window")!.classList.remove('closedModalWindow');
-  document.getElementById("modalWindowBack")!.classList.remove("hiddenModalBack");
+  //document.getElementById(ID + "Window")!.classList.remove('closedModalWindow');
+  //document.getElementById("modalWindowBack")!.classList.remove("hiddenModalBack");
 }
 
 
 const keysInputBox = document.getElementById("keysInputBox") as HTMLDivElement;
 const saveButton = document.getElementById("saveButton") as HTMLDivElement;
 const combinationsBox = document.getElementById("combinationsBox") as HTMLDivElement;
+const clearButton = document.getElementById("clearInputButton") as HTMLDivElement;
 
 const combinations: string[] = [];
 
 let buttonsCount = 0;
 function trackKeyPress(event: KeyboardEvent) {
-  keysInputBox.style.border = "1px solid rgba(255, 255, 255, 0.6)";
   buttonsCount++
+
+  if(buttonsCount > 0){
+    clearButton.style.opacity = "1";
+  } else {
+    clearButton.style.opacity = "0";
+  }
 
   if (buttonsCount < 5) {
     event.preventDefault();
-    const keyName = event.key;
+    let keyName = event.key;
+
+    if (keyName == " "){
+        keyName = "space";
+    }
 
     const keyDiv = document.createElement("div");
     keyDiv.textContent = keyName.toUpperCase();
+    keyDiv.classList.add("keyBox");
+
+    if(buttonsCount == 1) keyDiv.classList.add("firstKey");
 
     keyDiv.classList.add("hiddenKey");
     keysInputBox.appendChild(keyDiv);
     setTimeout(() => keyDiv.classList.remove("hiddenKey"), 10);
   }
 }
-
-const clearButton = document.getElementById("clearInputButton") as HTMLDivElement;
 
 function clearCombination() {
   const divs = keysInputBox.querySelectorAll("div");
@@ -267,14 +279,18 @@ function clearCombination() {
       div.remove();
     }
   });
+
+  clearButton.style.opacity = "0";
 }
+
+const emptyCombinationsHint = document.getElementById('emptyCombinationsHint');
 
 function saveCombination() {
   const divs = keysInputBox.querySelectorAll("div");
   const innerTextArray: string[] = [];
 
   divs.forEach((div) => {
-    innerTextArray.push(div.innerText);
+    if(div != clearButton) innerTextArray.push(div.innerText);
   });
 
   let combinationText = innerTextArray.join(" + ");
@@ -283,21 +299,87 @@ function saveCombination() {
     combinationText = "";
   }
 
+  if(divs.length == 1){
+    keysInputBox!.classList.add("shake");
+    setTimeout(() => keysInputBox!.classList.remove("shake"), 400);
+    return;
+  }
+
   combinations.push(combinationText);
 
-  keysInputBox.textContent = "";
+  emptyCombinationsHint!.style.display = "none";
+
+  divs.forEach((div) => {
+    if(div != clearButton){
+      div.remove();
+    }
+  });
+
+  clearButton.style.opacity = "0";
 
   const combinationDiv = document.createElement("div");
+  const combinationTextBlock = document.createElement("p");
   combinationDiv.classList.add("combination");
   combinationDiv.classList.add("hiddenCombination");
-  combinationDiv.textContent = combinationText;
+  combinationTextBlock.innerHTML = combinationText;
+  
+  const combinationRemoveButton = document.createElement("div");
+  combinationRemoveButton.classList.add("combinationRemoveButton");
+
+  combinationDiv.appendChild(combinationRemoveButton);
+  combinationDiv.appendChild(combinationTextBlock);
   combinationsBox.appendChild(combinationDiv);
+  combinationDiv.addEventListener("click", () => removeCombination(combinationDiv));
   setTimeout(() => combinationDiv.classList.remove("hiddenCombination"), 10);
   buttonsCount = 0;
 }
 
+let listenKeys = false;
 
-document.addEventListener("keydown", trackKeyPress);
+//keysInputBox.addEventListener("click", keysListener);
 saveButton.addEventListener("click", saveCombination);
 clearButton.addEventListener("click", clearCombination);
+
+setActive(keysInputBox);
+
+function setActive(targetElement: HTMLElement, containerElement: HTMLElement | Document = document) {
+  containerElement.addEventListener('click', (event) => {
+    const clickedElement = event.target as HTMLElement;
+    if (clickedElement === targetElement || targetElement.contains(clickedElement)) {
+      targetElement.classList.add('active');
+      if(!listenKeys) keysListener();
+    } else {
+      targetElement.classList.remove('active');
+      if(listenKeys) keysListener();
+    }
+  });
+}
+
+
+function keysListener(){
+  if(listenKeys){
+    document.removeEventListener("keydown", trackKeyPress);
+    listenKeys = !listenKeys;
+  } else {
+    document.addEventListener("keydown", trackKeyPress);
+    listenKeys = !listenKeys;
+  }
+}
+
+
+function removeCombination(box: HTMLElement) {
+  box.classList.add("hiddenCombination");
+  setTimeout(() => {box.remove(); update()}, 200);
+}
+
+function update(){
+  const combinationBoxes = document.querySelectorAll(".combination") as NodeListOf<HTMLElement>;
+  if(combinationBoxes.length > 0){
+    emptyCombinationsHint!.style.display = "none";
+  } else {
+    emptyCombinationsHint!.style.display = "block";
+  }
+}
+
+
 

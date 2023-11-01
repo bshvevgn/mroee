@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const electron_1 = require("electron");
 let mainWindow;
+electron_1.app.setName('mroee /connect');
 electron_1.app.on("ready", createWindows);
 function createWindows() {
     mainWindow = new electron_1.BrowserWindow({
@@ -12,6 +13,7 @@ function createWindows() {
             contextIsolation: false
         },
         show: false,
+        title: 'mroee /connect',
         titleBarStyle: 'hidden',
         trafficLightPosition: { x: 10, y: 10 }
     });
