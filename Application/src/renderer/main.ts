@@ -5,11 +5,16 @@ const { SerialPort } = require('serialport')
 let isConnected = true;
 let receivedData = false;
 let globalPortName = '';
-
 let globalPort = new SerialPort({
   path: 'COM1',
   baudRate: 115200
 });
+let port = new SerialPort({
+  path: 'COM1',
+  baudRate: 115200
+});
+const portNames = ['/dev/cu.usbserial-0001', '/dev/cu.usbserial-0002', 'COM1', 'COM2', 'COM3', 'COM4'];
+
 
 let accumulatedData: string = ''
 
@@ -24,11 +29,6 @@ function parseData(data: string, portName: string) {
     document.getElementById('serialNumber')!.innerHTML = "S/N: " + serialNumber;
   }
 }
-
-let port = new SerialPort({
-  path: 'COM1',
-  baudRate: 115200
-});
 
 async function connectTo(portName: string) {
   port = new SerialPort({
@@ -73,9 +73,6 @@ async function readData() {
   });
 }
 
-
-const portNames = ['/dev/cu.usbserial-0001', '/dev/cu.usbserial-0002', 'COM1', 'COM2', 'COM3', 'COM4'];
-
 async function main() {
   console.log("Port opened: " + globalPort.isOpen + " Connected: " + isConnected);
 
@@ -108,8 +105,6 @@ async function main() {
   }
 }
 
-setInterval(() => main(), 500);
-
 globalPort.on('close', function () {
   isConnected = false;
 });
@@ -118,6 +113,7 @@ globalPort.on('error', function () {
   isConnected = false;
 });
 
+setInterval(() => main(), 500);
 
 
 class IconsPopup {
@@ -155,11 +151,8 @@ class IconsPopup {
 
   private addMenu() {
     this.menuOpened = true;
+
     const menu = document.createElement('div');
-    const menuDrop = document.createElement('div');
-    menuDrop.classList.add('icon');
-    menuDrop.classList.add('menuDrop');
-    menu.appendChild(menuDrop);
     menu.classList.add('iconMenu');
     menu.classList.add('hidden');
     this.element.appendChild(menu);
@@ -169,18 +162,23 @@ class IconsPopup {
 
     const iconNames = ['copy', 'paste', 'mute', 'volumeup', 'volumedown', 'pause', 'play', 'backward', 'forward', 'screenshot', 'search', 'moon', 'lock'];
     const names = ['Копировать', 'Вставить', 'Без звука', 'Громкость +', 'Громкость -', 'Пауза', 'Продолжить', 'Назад', 'Вперёд', 'Снимок экрана', 'Поиск', 'Не беспокоить', 'Заблокировать'];
+    
     iconNames.forEach((name, index) => {
       const icon = document.createElement('div');
       const iconName = document.createElement('p');
-      const label = names[index];
-      iconName.textContent = label;
       const iconIco = document.createElement('div');
+      const label = names[index];
+
+      iconName.textContent = label;
       iconIco.style.backgroundImage = `url(resources/icons/${name}.png)`;
       iconIco.classList.add('icon');
+
       icon.appendChild(iconIco);
       icon.appendChild(iconName);
+
       icon.classList.add('listElement');
       menu.appendChild(icon);
+
       icon.addEventListener('click', () => {
         console.log("s" + this.numberOfScreen + "i" + index);
         innerIcon.style.backgroundImage = `url(resources/icons/${name}.png)`;
@@ -217,8 +215,6 @@ function selectContent(button: HTMLElement) {
     }
   });
 }
-
-
 
 
 function closeModalWindow(ID: string) {

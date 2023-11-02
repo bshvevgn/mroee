@@ -17,6 +17,11 @@ let globalPort = new SerialPort({
     path: 'COM1',
     baudRate: 115200
 });
+let port = new SerialPort({
+    path: 'COM1',
+    baudRate: 115200
+});
+const portNames = ['/dev/cu.usbserial-0001', '/dev/cu.usbserial-0002', 'COM1', 'COM2', 'COM3', 'COM4'];
 let accumulatedData = '';
 function parseData(data, portName) {
     console.log("parsing");
@@ -29,10 +34,6 @@ function parseData(data, portName) {
         document.getElementById('serialNumber').innerHTML = "S/N: " + serialNumber;
     }
 }
-let port = new SerialPort({
-    path: 'COM1',
-    baudRate: 115200
-});
 function connectTo(portName) {
     return __awaiter(this, void 0, void 0, function* () {
         port = new SerialPort({
@@ -73,7 +74,6 @@ function readData() {
         });
     });
 }
-const portNames = ['/dev/cu.usbserial-0001', '/dev/cu.usbserial-0002', 'COM1', 'COM2', 'COM3', 'COM4'];
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         console.log("Port opened: " + globalPort.isOpen + " Connected: " + isConnected);
@@ -110,13 +110,13 @@ function main() {
         }
     });
 }
-setInterval(() => main(), 500);
 globalPort.on('close', function () {
     isConnected = false;
 });
 globalPort.on('error', function () {
     isConnected = false;
 });
+setInterval(() => main(), 500);
 class IconsPopup {
     constructor(element) {
         this.menuOpened = false;
@@ -148,10 +148,6 @@ class IconsPopup {
     addMenu() {
         this.menuOpened = true;
         const menu = document.createElement('div');
-        const menuDrop = document.createElement('div');
-        menuDrop.classList.add('icon');
-        menuDrop.classList.add('menuDrop');
-        menu.appendChild(menuDrop);
         menu.classList.add('iconMenu');
         menu.classList.add('hidden');
         this.element.appendChild(menu);
@@ -162,9 +158,9 @@ class IconsPopup {
         iconNames.forEach((name, index) => {
             const icon = document.createElement('div');
             const iconName = document.createElement('p');
+            const iconIco = document.createElement('div');
             const label = names[index];
             iconName.textContent = label;
-            const iconIco = document.createElement('div');
             iconIco.style.backgroundImage = `url(resources/icons/${name}.png)`;
             iconIco.classList.add('icon');
             icon.appendChild(iconIco);

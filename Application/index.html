@@ -38,6 +38,10 @@
                 <div class="icon" style="background-image: url(resources/icons/keyboard.png);"></div>
                 <p>Сочетания клавиш</p>
             </div>
+            <div class="asideButton" id="terminalSetButton" onclick="selectContent(this)">
+                <div class="icon" style="background-image: url(resources/icons/console.png);"></div>
+                <p>Настройка шаблонов</p>
+            </div>
             <div class="asideButton" id="infoButton" onclick="selectContent(this)">
                 <div class="icon" style="background-image: url(resources/icons/info.png);"></div>
                 <p>Об устройстве</p>
@@ -70,6 +74,26 @@
         <div class="semiScreen">
             <h1>Сочетания клавиш</h1>
             <h2>Добавить новое сочетание</h2>
+            <div id="keysInputBox">
+                <div class="icon" id="clearInputButton" style="background-image: url(resources/icons/close.png);"></div>
+            </div>
+            <div id="saveButton" class="button">
+                <p>Добавить сочетание</p>
+            </div>
+        </div>
+        <div class="semiScreen" style="padding: 86px 30px 0px 30px;">
+            <h2>Сохранённые сочетания</h2>
+            <p style="margin-top: -10px;" class="hint" id="emptyCombinationsHint">Нет добавленных сочетаний</p>
+            <div id="combinationsBox"></div>
+        </div>
+    </div>
+    <div class="content hiddenContent" id="terminalSet">
+        <div class="semiScreen">
+            <h1>Настройка шаблонов</h1>
+            <div class="subHead">
+                <h2>Добавление шаблонов</h2>
+                <p>Добавьте необходимые шаблоны команд Терминала и выполняйте их по одному нажатию</p>
+            </div>
             <div id="keysInputBox">
                 <div class="icon" id="clearInputButton" style="background-image: url(resources/icons/close.png);"></div>
             </div>

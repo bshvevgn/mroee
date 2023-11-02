@@ -161,6 +161,22 @@ aside{
     margin: 0px;
 }
 
+.subHead{
+    width: 100%;
+    height: fit-content;
+    float: left;
+    height: fit-content;
+}
+
+.subHead h2{
+    margin-bottom: 0px;
+    width: 100%;
+}
+
+.subHead p{
+    margin: 0px 0px 20px 0px;
+}
+
 .hiddenContent{
     touch-action: none;
     transform: scale(0.96);
