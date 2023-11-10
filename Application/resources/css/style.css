@@ -8,10 +8,16 @@
     src: url(../fonts/Coolvetica.ttf);
 }
 
+@font-face {
+    font-family: Inter;
+    src: url(../fonts/Inter.ttf);
+}
+
 body{
-    background-color: rgb(0 0 0);
+    background-color: #000000;
     margin: 0;
     -webkit-user-select: none;
+    user-select: none;
 }
 
 h1, h2, p{
@@ -20,16 +26,28 @@ h1, h2, p{
     cursor: default;
 }
 
+h1, h2{
+    font-weight: 600;
+}
+
+.dragArea{
+    width: 100%;
+    height: 30px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    -webkit-app-region: drag;
+}
+
 header{
     height: 40px;
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
-    padding: 30px;
+    justify-content: flex-start;
+    padding: 40px;
     width: calc(100% - 60px);
     position: fixed;
-    -webkit-app-region: drag;
     backdrop-filter: blur(20px);
     z-index: 10;
     background-color: rgb(0 0 0 / 0%);
@@ -83,8 +101,8 @@ header{
 }
 
 aside{
-    height: calc(100vh - 60px);
     width: fit-content;
+    height: fit-content;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -95,15 +113,20 @@ aside{
 }
 
 .buttonsContainer{
-    background-color: rgb(42 42 42);
+    background-color: #212121;
     height: fit-content;
-    width: fit-content;
+    width: max-content;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     flex-wrap: wrap;
-    padding: 5px;
+    /* padding: 5px; */
     border-radius: 34px;
     border: 1px solid #ffffff1a;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0px);
+    align-items: center;
+    z-index: 1000;
 }
 
 .asideButton{
@@ -116,21 +139,42 @@ aside{
     padding: 16px 22px;
     border-radius: 31px;
     flex-wrap: nowrap;
-    width: calc(100% - 44px);
+    width: fit-content;
     transition: .1s;
     justify-content: center;
 }
 
+.asideButton .icon{
+    height: 22px;
+    width: 22px;
+}
+
 .asideWidget{
     background-color: rgba(0, 0, 0, 0.2);
-    padding: 18px 24px;
+    padding: 14px 14px;
     border-radius: 34px;
     display: flex;
     align-items: center;
     width: fit-content;
     height: fit-content;
-    margin-top: 6px;
+    margin-right: 4px;
+    margin-left: 4px;
+    position: relative;
+    max-width: 50px;
+    filter: blur(0px);
+    transform: scale(1);
+    transition: max-width 300ms 0ms, opacity 200ms 100ms, filter 200ms 100ms, padding 300ms 0ms, transform 300ms 0ms, margin-left 200ms 0ms;
     /* display: none; */
+}
+
+.hiddenAsideWidget{
+    max-width: 0px;
+    padding: 14px 0px;
+    margin-left: 0px;
+    opacity: 0;
+    filter: blur(10px);
+    transform: scale(0.6);
+    transition: max-width 300ms 50ms, opacity 200ms 0ms, filter 200ms 0ms, padding 300ms 0ms, transform 300ms 0ms, margin-left 200ms 0ms;
 }
 
 .asideWidget p{
@@ -140,17 +184,38 @@ aside{
 }
 
 .asideWidget .icon{
-    height: 20px;
-    width: 20px;
-    display: none;
+    height: 22px;
+    width: 22px;
+    opacity: .9;
+}
+
+.asideWidget:hover > .popup{
+    opacity: 1;
+}
+
+.popup{
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 12px 20px;
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 50%;
+    transform: translate(-50%, 0px);
+    opacity: 0;
+    transition: 200ms 300ms;
 }
 
 .activeButton{
-    background-color: rgb(79 79 79);
+    background-color: rgb(255 255 255);
+}
+
+.activeButton p{
+    color: black;
 }
 
 .activeButton .icon{
-    /* filter: invert(1); */
+    filter: invert(1);
 }
 
 .asideButton:not(.activeButton):hover{
@@ -158,31 +223,32 @@ aside{
 }
 
 .asideButton p{
-    margin: 0px 0px 0px 14px;
-    display: none;
+    margin: 0px 0px 0px 12px;
+    /* display: none; */
+    font-size: 16px;
 }
 
 .content:has(.absoluteHead){
-    width: calc(100vw - 334px);
-    padding: 80px 30px 30px 30px;
+    width: calc(100vw - 80px);
+    padding: 90px 40px 40px 40px;
     position: absolute;
     bottom: 0px;
     right: 0px;
     overflow-y: scroll;
-    height: calc(100vh - 230px);
+    height: calc(100vh - 290px);
     max-width: 5000px;
     transform: scale(1);
     transition: opacity 300ms 300ms, max-width 0ms 300ms, transform 300ms 300ms, filter 300ms 300ms;
 }
 
 .content{
-    width: calc(100vw - 334px);
-    padding: 0px 30px 30px 30px;
+    width: calc(100vw - 80px);
+    padding: 10px 40px 30px 40px;
     position: absolute;
     bottom: 0px;
     right: 0px;
     overflow-y: scroll;
-    height: calc(100vh - 130px);
+    height: calc(100vh - 140px);
     max-width: 5000px;
     transform: scale(1);
     transition: opacity 300ms 300ms, max-width 0ms 300ms, transform 300ms 300ms, filter 300ms 300ms;
@@ -190,8 +256,8 @@ aside{
 
 .hiddenContent{
     touch-action: none;
-    transform: scale(0.96);
-    filter: blur(20px);
+    transform: scale(0.96)!important;
+    filter: blur(20px)!important;
     max-width: 0px!important;
     transition: opacity 300ms 0ms, max-width 0ms 300ms, transform 300ms 0ms, filter 300ms 0ms!important;
     opacity: 0;
@@ -201,22 +267,26 @@ aside{
     width: 100%;
     height: fit-content;
     float: left;
-    height: 88px;
+    height: fit-content;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
 }
 
 .absoluteHead{
     position: absolute;
-    top: 100px;
-    left: 30px;
+    top: 110px;
+    left: 40px;
 }
 
 .content:has(.absoluteHead){
-    padding-top: 200px;
+    padding-top: 250px;
 }
 
 .pageHead h1{
     margin-bottom: 0px;
-    width: 100%;
+    /* width: 100%; */
+    font-size: 40px;
 }
 
 .pageHead p{
@@ -240,7 +310,7 @@ aside{
 }
 
 #previewBox{
-    height: calc(100% - 88px);
+    height: calc(100% - 188px);
     width: 100%;
     display: flex;
     align-items: center;
@@ -257,18 +327,29 @@ aside{
     position: relative;
 }
 
-.previewIconBox:hover, .previewIconBox:active {
+.previewIconBox:hover {
     transition: 200ms 0ms;
-    border: 8px solid rgba(255, 255, 255, 0.4);
+    border: 4px solid rgba(255, 255, 255, 0.4);
 }
 
 .previewIconBox{
-    border: 8px solid rgba(255, 255, 255, 0.0);
-    border-radius: 22px;
-    height: 126px;
-    width: 126px;
+    border: 4px solid rgba(255, 255, 255, 0.0);
+    border-radius: 20px;
+    height: 129px;
+    width: 129px;
     position: absolute;
-    transition: 200ms 100ms;
+    transition: 200ms 0ms;
+}
+
+.activePreview {
+    transition: 200ms 0ms;
+    /*transform: translate(2px, 2px);
+    border: 4px solid rgba(255, 255, 255, 0.4);*/
+    border: 4px dashed rgba(255, 255, 255, 0.4);
+}
+
+.activePreview:hover{
+    transform: translate(0px, 0px);
 }
 
 .iconMenu{
@@ -279,7 +360,7 @@ aside{
     padding: 8px;
     border-radius: 32px;
     background-color: rgb(52 52 52 / 35%);
-    transform: translate(calc(-100% - 30px), calc(-50% + 60px));
+    transform: translate(calc(-100% - 30px), calc(-50% + 60px)) scale(1);
     filter: drop-shadow(0px 20px 20px rgba(0, 0, 0, 0.6));
     max-height: 300px;
     flex-wrap: nowrap;
@@ -300,9 +381,17 @@ aside{
     width: calc(100% - 0px);
     overflow: auto;
     padding: 0px 8px 0px 8px;
-    height: 94px;
+    height: 114px;
     flex-wrap: nowrap;
     margin-left: -8px;
+}
+
+.categories::-webkit-scrollbar {
+    width: 0;
+}
+
+.column::-webkit-scrollbar {
+    width: 0;
 }
 
 .categories .category{
@@ -372,6 +461,7 @@ aside{
 
 .hidden{
     opacity: 0;
+    transform: translate(calc(-100% - 30px), calc(-50% + 60px)) scale(1.1);
 }
 
 .listElement .icon{
@@ -390,7 +480,7 @@ aside{
     position: absolute;
     left: 50%;
     top: 50%;
-    transform: translate(calc(-50% - 4px), calc(-50% - 6px));
+    transform: translate(calc(-50% - 0px), calc(-50% - 4px));
     height: 46px;
     width: 46px;
     opacity: .8;
@@ -477,6 +567,7 @@ aside{
 
 #keysInputBox {
     min-width: 100px;
+    max-width: 670px;
     height: 34px;
     padding: 12px 12px 72px 12px;
     display: flex;
@@ -705,5 +796,19 @@ aside{
 
     100%{
         transform: translate(0px, 0px);
+    }
+}
+
+@keyframes bounce {
+    0%{
+        transform: translate(calc(-50% - 0px), calc(-50% - 4px)) scale(1);
+    }
+
+    50%{
+        transform: translate(calc(-50% - 0px), calc(-50% - 4px)) scale(1.1);
+    }
+
+    100%{
+        transform: translate(calc(-50% - 0px), calc(-50% - 4px)) scale(1);
     }
 }

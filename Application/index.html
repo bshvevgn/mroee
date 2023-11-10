@@ -10,7 +10,7 @@
 
 <body>
     <div id="preloader">
-        <video autoplay muted no-controls>
+        <video autoplay muted no-controls id="logoAnimation">
             <source src="resources/images/main_animation.mp4">
         </video>
     </div>
@@ -25,33 +25,37 @@
             <div class="imageWrapper" id="deviceConnectImage"></div>
         </div>
     </div>
+    <div class="dragArea"></div>
     <header>
         <div class="icon" id="mainLogo"></div>
-    </header>
-    <aside>
         <div class="buttonsContainer">
             <div class="asideButton activeButton" id="iconsSetButton" onclick="selectContent(this)">
                 <div class="icon" style="background-image: url(resources/icons/screens.png);"></div>
-                <p>Настройка экранов</p>
+                <p>Основное</p>
             </div>
             <div class="asideButton" id="keysSetButton" onclick="selectContent(this)">
                 <div class="icon" style="background-image: url(resources/icons/keyboard.png);"></div>
-                <p>Сочетания клавиш</p>
+                <p>Сочетания</p>
             </div>
             <div class="asideButton" id="terminalSetButton" onclick="selectContent(this)">
                 <div class="icon" style="background-image: url(resources/icons/console.png);"></div>
-                <p>Настройка шаблонов</p>
+                <p>Шаблоны</p>
             </div>
             <div class="asideButton" id="infoButton" onclick="selectContent(this)">
                 <div class="icon" style="background-image: url(resources/icons/info.png);"></div>
                 <p>Об устройстве</p>
             </div>
-            <div class="asideWidget"><div class="icon" style="background-image: url(resources/icons/info.png);"></div><p>Подключено</p></div>
+            <div class="asideWidget hiddenAsideWidget" id="connectionWidget">
+                <div class="popup">
+                    <p>Подключено</p>
+                </div>
+                <div class="icon" style="background-image: url(resources/icons/connected.png);"></div>
+            </div>
         </div>
-    </aside>
+    </header>
     <div class="content" id="iconsSet">
         <div class="pageHead">
-            <h1>Настройка экранов</h1>
+            <h1>Основные настройки</h1>
             <p>Выберите необходимый значок или виджет для каждого из экранов</p>
         </div>
         <div id="previewBox">
@@ -90,12 +94,30 @@
             <h2>Сохранённые сочетания</h2>
             <p style="margin-top: -10px;" class="hint" id="emptyCombinationsHint">Нет добавленных сочетаний</p>
             <div id="combinationsBox">
-                <div class="combinationSkeleton"><div class="combinationRemoveButton"></div><p>META + D</p></div>
-                <div class="combinationSkeleton"><div class="combinationRemoveButton"></div><p>SHIFT + META + W + D</p></div>
-                <div class="combinationSkeleton"><div class="combinationRemoveButton"></div><p>SHIFT + META</p></div>
-                <div class="combinationSkeleton"><div class="combinationRemoveButton"></div><p>W + D</p></div>
-                <div class="combinationSkeleton"><div class="combinationRemoveButton"></div><p>SHIFT + META + W + D</p></div>
-                <div class="combinationSkeleton"><div class="combinationRemoveButton"></div><p>META + W + D</p></div>
+                <div class="combinationSkeleton">
+                    <div class="combinationRemoveButton"></div>
+                    <p>META + D</p>
+                </div>
+                <div class="combinationSkeleton">
+                    <div class="combinationRemoveButton"></div>
+                    <p>SHIFT + META + W + D</p>
+                </div>
+                <div class="combinationSkeleton">
+                    <div class="combinationRemoveButton"></div>
+                    <p>SHIFT + META</p>
+                </div>
+                <div class="combinationSkeleton">
+                    <div class="combinationRemoveButton"></div>
+                    <p>W + D</p>
+                </div>
+                <div class="combinationSkeleton">
+                    <div class="combinationRemoveButton"></div>
+                    <p>SHIFT + META + W + D</p>
+                </div>
+                <div class="combinationSkeleton">
+                    <div class="combinationRemoveButton"></div>
+                    <p>META + W + D</p>
+                </div>
             </div>
         </div>
     </div>
@@ -120,11 +142,15 @@
         </div>
     </div>-->
     <div class="content hiddenContent" id="info">
-        <h1>Об устройстве</h1>
-        <p>SwiftController v. 1.0<br>
+        <div class="pageHead">
+            <h1>Об устройстве</h1>
+        </div>
+        <p>mroee controller Версия 1.0<br>
             <span id="serialNumber"></span>
         </p>
+        <p> mroee /connect Версия 1.0</p>
     </div>
+    <script> var exports = {}; </script>
     <script src="dist/renderer/main.js" defer></script>
 </body>
 

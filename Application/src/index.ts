@@ -7,7 +7,7 @@ app.on("ready", createWindows);
 
 function createWindows (): void {
     mainWindow = new BrowserWindow({
-        width: 1200, height: 800,
+        width: 1400, height: 800,
         webPreferences: {
             preload: __dirname + "/preload.js",
             nodeIntegration: true,
@@ -16,7 +16,6 @@ function createWindows (): void {
         show: false,
         title: 'mroee /connect',
         titleBarStyle: 'hidden',
-        trafficLightPosition: { x: 10, y: 10 }
     });
 
     mainWindow.loadFile("./index.html");

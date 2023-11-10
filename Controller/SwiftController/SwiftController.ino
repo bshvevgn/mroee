@@ -206,6 +206,7 @@ void loop() {
     //display1.clearDisplay();
     display1.drawBitmap((display1.width() - ICON_WIDTH) / 2, (display1.height() - ICON_HEIGHT) / 2, copy_ico, ICON_WIDTH, ICON_HEIGHT, 1);
     display1.display();
+
   };
 
   if (DIM_ENABLED) {

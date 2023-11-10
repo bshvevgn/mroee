@@ -1,4 +1,5 @@
 setTimeout(() => document.getElementById('preloader')?.classList.add('hiddenPreloader'), 2000);
+setTimeout(() => document.getElementById('logoAnimation')!.style.display = "none", 2300);
 
 const { SerialPort } = require('serialport')
 
@@ -19,7 +20,6 @@ const portNames = ['/dev/cu.usbserial-0001', '/dev/cu.usbserial-0002', 'COM1', '
 let accumulatedData: string = ''
 
 function parseData(data: string, portName: string) {
-  console.log("parsing");
   const regex = /^SwiftController;S\/N(\d+)/;
   const match = data.match(regex);
   if (match) {
@@ -47,7 +47,7 @@ async function connectTo(portName: string) {
   return new Promise<void>((resolve, reject) => {
     port.on('error', (err: { message: any; }) => {
       isConnected = false; //-----
-      console.log(`Ошибка на порту ${portName}: ${err.message}`);
+      //console.log(`Ошибка на порту ${portName}: ${err.message}`);
       reject(err);
     });
   });
@@ -68,14 +68,14 @@ async function readData() {
   return new Promise<void>((resolve, reject) => {
     globalPort.on('error', (err: { message: any; }) => {
       isConnected = false; //-----
-      console.log(`Ошибка на порту ${globalPortName}: ${err.message}`);
+      //console.log(`Ошибка на порту ${globalPortName}: ${err.message}`);
       reject(err);
     });
   });
 }
 
 async function main() {
-  console.log("Port opened: " + globalPort.isOpen + " Connected: " + isConnected);
+  //console.log("Port opened: " + globalPort.isOpen + " Connected: " + isConnected);
 
   if (isConnected) {
     closeModalWindow('connection');
@@ -120,16 +120,15 @@ const iconNames = ['copy', 'paste', 'mute', 'volumeup', 'volumedown', 'pause', '
 const names = ['Копировать', 'Вставить', 'Без звука', 'Громкость +', 'Громкость -', 'Пауза', 'Продолжить', 'Назад', 'Вперёд', 'Снимок экрана', 'Поиск', 'Не беспокоить', 'Заблокировать'];
 
 
-class IconsPopup {
+class SettingsPopup {
   private element: HTMLElement;
   private menuOpened: boolean = false;
   private numberOfScreen = "";
 
   constructor(element: HTMLElement) {
     this.element = element;
-    let menuOpened = this.menuOpened;
     this.numberOfScreen = this.element.id.substring(7, 8);
-    this.element.addEventListener('click', this.operateMenu.bind(this));
+    this.element.addEventListener('click', () => this.operateMenu());
   }
 
   private checkMenu() {
@@ -142,22 +141,28 @@ class IconsPopup {
     if (this.menuOpened) {
       this.closeMenu();
     } else {
-      this.addMenu();
+      this.openMenu();
     }
   }
 
   private closeMenu() {
-    const menu = this.element.querySelectorAll<HTMLTableElement>(".iconMenu")[0];
-    menu.classList.add('hidden');
-    setTimeout(() => menu.remove(), 200);
+    const menu = document.querySelector<HTMLElement>("#menu" + this.element.id.substring(7, 8));
+    this.element.classList.remove('activePreview');
+    menu!.classList.add('hidden');
+    setTimeout(() => menu!.remove(), 200);
     this.menuOpened = false;
   }
 
-  private addMenu() {
+  private openMenu() {
     this.menuOpened = true;
+    this.element?.classList.add('activePreview');
+
+    let menu: HTMLDivElement = document.createElement("div");
+    menu.classList.add("iconMenu");
+    menu.classList.add("hidden");
+    menu.id = "menu" + this.element.id.substring(7, 8);
 
     const menuHTML = `
-        <div class="iconMenu hidden">
           <div class="categories">
             <div class="category iconsCategory"><p>Значки</p></div>
             <div class="category functionsCategory"><p>Сочетания</p></div>
@@ -165,7 +170,7 @@ class IconsPopup {
           </div>
           <div class="column iconsColumn">
             ${iconNames.map((name, index) => `
-                <div class="listElement iconElement" onClick="handleIconClick(${this.numberOfScreen}, ${index});">
+                <div class="listElement iconElement button" onClick="handleIconClick(${this.numberOfScreen}, ${index});">
                     <div class="icon" style="background-image: url(resources/icons/${name}.png);"></div>
                     <p>${names[index]}</p>
                 </div>
@@ -174,27 +179,38 @@ class IconsPopup {
           <div class="column functionsCloumn">
 
           </div>
-        </div>
     `;
 
-    this.element.innerHTML += menuHTML;
+    menu.innerHTML += menuHTML;
 
-    setTimeout(() => this.element.querySelector('.iconMenu')!.classList.remove('hidden'), 10);
+    const iconButtons = document.querySelectorAll<HTMLTableElement>(".iconElement");
+    iconButtons.forEach(button => {
+      button.addEventListener('click', () => this.operateMenu());
+    });
+
+    menu.style.position = "absolute";
+    menu.style.zIndex = "1000";
+    menu.style.left = this.element.getBoundingClientRect().left + "px";
+    menu.style.top = this.element.getBoundingClientRect().top + "px";
+    document.querySelector("body")?.appendChild(menu);
+    setTimeout(() => menu.classList.remove('hidden'), 10);
   }
 
 }
 
 function handleIconClick(numberOfScreen: number, index: number) {
-  const innerIcon = document.querySelectorAll<HTMLTableElement>(".previewIcon")[numberOfScreen-1];
+  const innerIcon = document.querySelectorAll<HTMLTableElement>(".previewIcon")[numberOfScreen - 1];
   const iconName = iconNames[index];
   console.log("s" + numberOfScreen + "i" + index);
   innerIcon.style.backgroundImage = `url(resources/icons/${iconName}.png)`;
+  innerIcon.style.animation = "bounce .2s ease-in-out running";
   globalPort.write("s" + numberOfScreen + "i" + index);
+  setTimeout(() => innerIcon.style.animation = "none", 200);
 }
 
 const previewIconBoxes = document.querySelectorAll<HTMLTableElement>('.previewIconBox');
 previewIconBoxes.forEach((previewIconBox) => {
-  new IconsPopup(previewIconBox);
+  new SettingsPopup(previewIconBox);
 });
 
 const asideButtons = document.querySelectorAll<HTMLTableElement>('.asideButton');
@@ -205,6 +221,12 @@ function selectContent(button: HTMLElement) {
 
   let buttonID = button.id;
   let id = buttonID.substring(0, buttonID.length - 6);
+
+  if(id !== "iconsSet") {
+    document.getElementById("connectionWidget")?.classList.remove("hiddenAsideWidget");
+  } else {
+    document.getElementById("connectionWidget")?.classList.add("hiddenAsideWidget");
+  }
 
   asideButtons.forEach(button => {
     button.classList.remove('activeButton');
@@ -227,8 +249,8 @@ function closeModalWindow(ID: string) {
 }
 
 function showModalWindow(ID: string) {
-  //document.getElementById(ID + "Window")!.classList.remove('closedModalWindow');
-  //document.getElementById("modalWindowBack")!.classList.remove("hiddenModalBack");
+  document.getElementById(ID + "Window")!.classList.remove('closedModalWindow');
+  document.getElementById("modalWindowBack")!.classList.remove("hiddenModalBack");
 }
 
 
@@ -250,7 +272,7 @@ function trackKeyPress(event: KeyboardEvent) {
     clearButton.style.opacity = "0";
   }
 
-  if (buttonsCount < 5) {
+  if (buttonsCount < 6) {
     event.preventDefault();
     let keyName = event.key;
 
@@ -360,6 +382,7 @@ function setActive(targetElement: HTMLElement, containerElement: HTMLElement | D
     }
   });
 }
+
 
 
 function keysListener() {
@@ -494,3 +517,54 @@ function update() {
 
 
 
+
+
+
+
+
+
+
+
+const noble = require('@abandonware/noble');
+const readline = require('readline');
+
+// Инициализация noble
+noble.on('stateChange', (state: string) => {
+  if (state === 'poweredOn') {
+    // Начинаем поиск устройств с заданным именем (например, "mroee")
+    noble.startScanning([], true);
+  } else {
+    noble.stopScanning();
+  }
+});
+
+// Обработка обнаруженных устройств
+noble.on('discover', (peripheral: { advertisement: { localName: string; txPowerLevel: string}; }) => {
+   console.log("------ " + peripheral.advertisement.localName);
+  // Проверяем имя устройства
+  if (peripheral.advertisement.localName === 'mroee') {
+
+    // Подключаемся к устройству
+    noble.stopScanning();
+    connectToDevice(peripheral);
+  }
+});
+
+// Функция подключения к устройству
+function connectToDevice(peripheral: { advertisement?: { localName: string; }; connect?: any; disconnect?: any; }) {
+  peripheral.connect((error: any) => {
+    if (error) {
+      console.error('Ошибка подключения к устройству:', error);
+      return;
+    }
+
+    console.log('Успешное подключение к устройству!');
+
+    sendStringToDevice(peripheral);
+  });
+}
+
+function sendStringToDevice(peripheral: { advertisement?: { localName: string; } | undefined; connect?: any; disconnect?: any; discoverServices?: any; }) {
+  let characteristics = peripheral.discoverServices();
+  //alert(characteristics);
+}
