@@ -55,6 +55,7 @@ async function connectTo(portName: string) {
 
 async function readData() {
   globalPort.on('data', (data: { toString: () => any; }) => {
+
     const dataStr = data.toString();
     accumulatedData += dataStr;
     parseData(accumulatedData, globalPortName);
@@ -98,7 +99,7 @@ async function main() {
         console.log(err);
       }
     } else {
-      await readData();
+      //await readData();
       port.removeAllListeners('error');
       port.removeAllListeners('open');
     }
@@ -113,7 +114,10 @@ globalPort.on('error', function () {
   isConnected = false;
 });
 
-setInterval(() => main(), 500);
+setInterval(() => main(), 1500);
+
+const iconNames = ['copy', 'paste', 'mute', 'volumeup', 'volumedown', 'pause', 'play', 'backward', 'forward', 'screenshot', 'search', 'moon', 'lock'];
+const names = ['Копировать', 'Вставить', 'Без звука', 'Громкость +', 'Громкость -', 'Пауза', 'Продолжить', 'Назад', 'Вперёд', 'Снимок экрана', 'Поиск', 'Не беспокоить', 'Заблокировать'];
 
 
 class IconsPopup {
@@ -152,40 +156,40 @@ class IconsPopup {
   private addMenu() {
     this.menuOpened = true;
 
-    const menu = document.createElement('div');
-    menu.classList.add('iconMenu');
-    menu.classList.add('hidden');
-    this.element.appendChild(menu);
-    setTimeout(() => menu.classList.remove('hidden'), 10);
+    const menuHTML = `
+        <div class="iconMenu hidden">
+          <div class="categories">
+            <div class="category iconsCategory"><p>Значки</p></div>
+            <div class="category functionsCategory"><p>Сочетания</p></div>
+            <div class="category functionsCategory"><p>Команды</p></div>
+          </div>
+          <div class="column iconsColumn">
+            ${iconNames.map((name, index) => `
+                <div class="listElement iconElement" onClick="handleIconClick(${this.numberOfScreen}, ${index});">
+                    <div class="icon" style="background-image: url(resources/icons/${name}.png);"></div>
+                    <p>${names[index]}</p>
+                </div>
+            `).join('')}
+          </div>
+          <div class="column functionsCloumn">
 
-    const innerIcon = this.element.querySelectorAll<HTMLTableElement>(".previewIcon")[0];
+          </div>
+        </div>
+    `;
 
-    const iconNames = ['copy', 'paste', 'mute', 'volumeup', 'volumedown', 'pause', 'play', 'backward', 'forward', 'screenshot', 'search', 'moon', 'lock'];
-    const names = ['Копировать', 'Вставить', 'Без звука', 'Громкость +', 'Громкость -', 'Пауза', 'Продолжить', 'Назад', 'Вперёд', 'Снимок экрана', 'Поиск', 'Не беспокоить', 'Заблокировать'];
-    
-    iconNames.forEach((name, index) => {
-      const icon = document.createElement('div');
-      const iconName = document.createElement('p');
-      const iconIco = document.createElement('div');
-      const label = names[index];
+    this.element.innerHTML += menuHTML;
 
-      iconName.textContent = label;
-      iconIco.style.backgroundImage = `url(resources/icons/${name}.png)`;
-      iconIco.classList.add('icon');
-
-      icon.appendChild(iconIco);
-      icon.appendChild(iconName);
-
-      icon.classList.add('listElement');
-      menu.appendChild(icon);
-
-      icon.addEventListener('click', () => {
-        console.log("s" + this.numberOfScreen + "i" + index);
-        innerIcon.style.backgroundImage = `url(resources/icons/${name}.png)`;
-        globalPort.write("s" + this.numberOfScreen + "i" + index);
-      });
-    });
+    setTimeout(() => this.element.querySelector('.iconMenu')!.classList.remove('hidden'), 10);
   }
+
+}
+
+function handleIconClick(numberOfScreen: number, index: number) {
+  const innerIcon = document.querySelectorAll<HTMLTableElement>(".previewIcon")[numberOfScreen-1];
+  const iconName = iconNames[index];
+  console.log("s" + numberOfScreen + "i" + index);
+  innerIcon.style.backgroundImage = `url(resources/icons/${iconName}.png)`;
+  globalPort.write("s" + numberOfScreen + "i" + index);
 }
 
 const previewIconBoxes = document.querySelectorAll<HTMLTableElement>('.previewIconBox');
@@ -230,6 +234,7 @@ function showModalWindow(ID: string) {
 
 const keysInputBox = document.getElementById("keysInputBox") as HTMLDivElement;
 const saveButton = document.getElementById("saveButton") as HTMLDivElement;
+const saveButtonBack = document.querySelectorAll<HTMLTableElement>(".saveButtonBack");
 const combinationsBox = document.getElementById("combinationsBox") as HTMLDivElement;
 const clearButton = document.getElementById("clearInputButton") as HTMLDivElement;
 
@@ -239,7 +244,7 @@ let buttonsCount = 0;
 function trackKeyPress(event: KeyboardEvent) {
   buttonsCount++
 
-  if(buttonsCount > 0){
+  if (buttonsCount > 0) {
     clearButton.style.opacity = "1";
   } else {
     clearButton.style.opacity = "0";
@@ -249,15 +254,15 @@ function trackKeyPress(event: KeyboardEvent) {
     event.preventDefault();
     let keyName = event.key;
 
-    if (keyName == " "){
-        keyName = "space";
+    if (keyName == " ") {
+      keyName = "space";
     }
 
     const keyDiv = document.createElement("div");
     keyDiv.textContent = keyName.toUpperCase();
     keyDiv.classList.add("keyBox");
 
-    if(buttonsCount == 1) keyDiv.classList.add("firstKey");
+    if (buttonsCount == 1) keyDiv.classList.add("firstKey");
 
     keyDiv.classList.add("hiddenKey");
     keysInputBox.appendChild(keyDiv);
@@ -271,7 +276,7 @@ function clearCombination() {
   buttonsCount = 0;
 
   divs.forEach((div) => {
-    if(div != clearButton){
+    if (div != clearButton && div != saveButton && div != saveButtonBack[0]) {
       div.remove();
     }
   });
@@ -286,7 +291,7 @@ function saveCombination() {
   const innerTextArray: string[] = [];
 
   divs.forEach((div) => {
-    if(div != clearButton) innerTextArray.push(div.innerText);
+    if (div != clearButton && div != saveButton && div != saveButtonBack[0]) innerTextArray.push(div.innerText);
   });
 
   let combinationText = innerTextArray.join(" + ");
@@ -295,7 +300,7 @@ function saveCombination() {
     combinationText = "";
   }
 
-  if(divs.length == 1){
+  if (divs.length == 3) {
     keysInputBox!.classList.add("shake");
     setTimeout(() => keysInputBox!.classList.remove("shake"), 400);
     return;
@@ -304,9 +309,13 @@ function saveCombination() {
   combinations.push(combinationText);
 
   emptyCombinationsHint!.style.display = "none";
+  skeletons.forEach(element => {
+    element.style.display = "none";
+  });
+  //combinationsBox!.style.backgroundImage = "url()";
 
   divs.forEach((div) => {
-    if(div != clearButton){
+    if (div != clearButton && div != saveButton && div != saveButtonBack[0]) {
       div.remove();
     }
   });
@@ -317,8 +326,9 @@ function saveCombination() {
   const combinationTextBlock = document.createElement("p");
   combinationDiv.classList.add("combination");
   combinationDiv.classList.add("hiddenCombination");
+  combinationDiv.classList.add("button");
   combinationTextBlock.innerHTML = combinationText;
-  
+
   const combinationRemoveButton = document.createElement("div");
   combinationRemoveButton.classList.add("combinationRemoveButton");
 
@@ -343,17 +353,17 @@ function setActive(targetElement: HTMLElement, containerElement: HTMLElement | D
     const clickedElement = event.target as HTMLElement;
     if (clickedElement === targetElement || targetElement.contains(clickedElement)) {
       targetElement.classList.add('active');
-      if(!listenKeys) keysListener();
+      if (!listenKeys) keysListener();
     } else {
       targetElement.classList.remove('active');
-      if(listenKeys) keysListener();
+      if (listenKeys) keysListener();
     }
   });
 }
 
 
-function keysListener(){
-  if(listenKeys){
+function keysListener() {
+  if (listenKeys) {
     document.removeEventListener("keydown", trackKeyPress);
     listenKeys = !listenKeys;
   } else {
@@ -365,15 +375,120 @@ function keysListener(){
 
 function removeCombination(box: HTMLElement) {
   box.classList.add("hiddenCombination");
-  setTimeout(() => {box.remove(); update()}, 200);
+  setTimeout(() => { box.remove(); update() }, 200);
 }
 
-function update(){
+const terminalInputBox = document.getElementById("terminalInputBox") as HTMLDivElement;
+const saveTerminalButton = document.getElementById("saveTerminalButton") as HTMLDivElement;
+const commandsBox = document.getElementById("treminalCommandsBox") as HTMLDivElement;
+const clearCommandButton = document.getElementById("clearTerminalInputButton") as HTMLDivElement;
+
+const commands: string[] = [];
+
+let commandLength = 0;
+
+function trackInput(event: KeyboardEvent) {
+  commandLength++
+
+  if (buttonsCount > 0) {
+    clearButton.style.opacity = "1";
+  } else {
+    clearButton.style.opacity = "0";
+  }
+
+  if (commandLength < 500) {
+    event.preventDefault();
+    let keyName = event.key;
+
+    if (keyName == " ") {
+      keyName = "space";
+    }
+
+    const keyDiv = document.createElement("div");
+    keyDiv.textContent = keyName.toUpperCase();
+    keyDiv.classList.add("keyBox");
+
+    if (buttonsCount == 1) keyDiv.classList.add("firstKey");
+
+    keyDiv.classList.add("hiddenKey");
+    keysInputBox.appendChild(keyDiv);
+    setTimeout(() => keyDiv.classList.remove("hiddenKey"), 10);
+  }
+}
+
+function clearCommand() {
+  commandLength = 0;
+  commandsBox.innerText = "";
+  clearButton.style.opacity = "0";
+}
+
+const emptyCommandsHint = document.getElementById('emptyCommandsHint');
+const skeletons = document.querySelectorAll(".combinationSkeleton") as NodeListOf<HTMLElement>;
+
+function saveCommand() {
+  const commandsArray: string[] = [];
+
+  commandsArray.push(commandsBox.innerText);
+
+  if (commandsBox.innerText = "") {
+    keysInputBox!.classList.add("shake");
+    setTimeout(() => keysInputBox!.classList.remove("shake"), 400);
+    return;
+  }
+
+  emptyCommandsHint!.style.display = "none";
+  skeletons.forEach(element => {
+    element.style.display = "none";
+  });
+  //combinationsBox!.style.backgroundImage = "url()";
+
+  clearCommand();
+
+  clearButton.style.opacity = "0";
+
+  /*const combinationDiv = document.createElement("div");
+  const combinationTextBlock = document.createElement("p");
+  combinationDiv.classList.add("combination");
+  combinationDiv.classList.add("hiddenCombination");
+  combinationTextBlock.innerHTML = combinationText;
+  
+  const combinationRemoveButton = document.createElement("div");
+  combinationRemoveButton.classList.add("combinationRemoveButton");
+
+  combinationDiv.appendChild(combinationRemoveButton);
+  combinationDiv.appendChild(combinationTextBlock);
+  combinationsBox.appendChild(combinationDiv);
+  combinationDiv.addEventListener("click", () => removeCombination(combinationDiv));
+  setTimeout(() => combinationDiv.classList.remove("hiddenCombination"), 10);
+  buttonsCount = 0;*/
+}
+
+//keysInputBox.addEventListener("click", keysListener);
+saveButton.addEventListener("click", saveCombination);
+clearButton.addEventListener("click", clearCombination);
+
+setActive(commandsBox);
+
+
+/*function removeCombination(box: HTMLElement) {
+  box.classList.add("hiddenCombination");
+  setTimeout(() => {box.remove(); update()}, 200);
+}*/
+
+function update() {
   const combinationBoxes = document.querySelectorAll(".combination") as NodeListOf<HTMLElement>;
-  if(combinationBoxes.length > 0){
+  if (combinationBoxes.length > 0) {
     emptyCombinationsHint!.style.display = "none";
+    skeletons.forEach(element => {
+      element.style.display = "none";
+    });
+    //combinationsBox!.style.backgroundImage = "url()";
   } else {
     emptyCombinationsHint!.style.display = "block";
+    skeletons.forEach(element => {
+      element.style.display = "block";
+    });
+    //combinationsBox!.style.backgroundImage = "url(resources/images/combinationsSkeleton.png)";
   }
 }
 

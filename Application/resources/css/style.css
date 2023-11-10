@@ -9,7 +9,7 @@
 }
 
 body{
-    background-color: rgb(0, 0, 0);
+    background-color: rgb(0 0 0);
     margin: 0;
     -webkit-user-select: none;
 }
@@ -32,7 +32,7 @@ header{
     -webkit-app-region: drag;
     backdrop-filter: blur(20px);
     z-index: 10;
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgb(0 0 0 / 0%);
 }
 
 #preloader{
@@ -95,15 +95,15 @@ aside{
 }
 
 .buttonsContainer{
-    background-color: rgb(42, 42, 42);
+    background-color: rgb(42 42 42);
     height: fit-content;
     width: fit-content;
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
-    padding: 6px;
+    padding: 5px;
     border-radius: 34px;
-
+    border: 1px solid #ffffff1a;
 }
 
 .asideButton{
@@ -114,14 +114,43 @@ aside{
     width: max-content;
     align-items: center;
     padding: 16px 22px;
-    border-radius: 30px;
+    border-radius: 31px;
     flex-wrap: nowrap;
     width: calc(100% - 44px);
     transition: .1s;
+    justify-content: center;
+}
+
+.asideWidget{
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 18px 24px;
+    border-radius: 34px;
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    height: fit-content;
+    margin-top: 6px;
+    /* display: none; */
+}
+
+.asideWidget p{
+    font-size: 14px;
+    margin: 0px 0px 0px 0px;
+    opacity: .8;
+}
+
+.asideWidget .icon{
+    height: 20px;
+    width: 20px;
+    display: none;
 }
 
 .activeButton{
-    background-color: rgb(0, 0, 0);
+    background-color: rgb(79 79 79);
+}
+
+.activeButton .icon{
+    /* filter: invert(1); */
 }
 
 .asideButton:not(.activeButton):hover{
@@ -130,19 +159,42 @@ aside{
 
 .asideButton p{
     margin: 0px 0px 0px 14px;
+    display: none;
 }
 
-.content{
+.content:has(.absoluteHead){
     width: calc(100vw - 334px);
     padding: 80px 30px 30px 30px;
     position: absolute;
     bottom: 0px;
     right: 0px;
     overflow-y: scroll;
-    height: calc(100vh - 110px);
+    height: calc(100vh - 230px);
     max-width: 5000px;
     transform: scale(1);
     transition: opacity 300ms 300ms, max-width 0ms 300ms, transform 300ms 300ms, filter 300ms 300ms;
+}
+
+.content{
+    width: calc(100vw - 334px);
+    padding: 0px 30px 30px 30px;
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    overflow-y: scroll;
+    height: calc(100vh - 130px);
+    max-width: 5000px;
+    transform: scale(1);
+    transition: opacity 300ms 300ms, max-width 0ms 300ms, transform 300ms 300ms, filter 300ms 300ms;
+}
+
+.hiddenContent{
+    touch-action: none;
+    transform: scale(0.96);
+    filter: blur(20px);
+    max-width: 0px!important;
+    transition: opacity 300ms 0ms, max-width 0ms 300ms, transform 300ms 0ms, filter 300ms 0ms!important;
+    opacity: 0;
 }
 
 .pageHead{
@@ -150,6 +202,16 @@ aside{
     height: fit-content;
     float: left;
     height: 88px;
+}
+
+.absoluteHead{
+    position: absolute;
+    top: 100px;
+    left: 30px;
+}
+
+.content:has(.absoluteHead){
+    padding-top: 200px;
 }
 
 .pageHead h1{
@@ -177,15 +239,6 @@ aside{
     margin: 0px 0px 20px 0px;
 }
 
-.hiddenContent{
-    touch-action: none;
-    transform: scale(0.96);
-    filter: blur(20px);
-    max-width: 0px;
-    transition: opacity 300ms 0ms, max-width 0ms 300ms, transform 300ms 0ms, filter 300ms 0ms;
-    opacity: 0;
-}
-
 #previewBox{
     height: calc(100% - 88px);
     width: 100%;
@@ -211,7 +264,7 @@ aside{
 
 .previewIconBox{
     border: 8px solid rgba(255, 255, 255, 0.0);
-    border-radius: 20px;
+    border-radius: 22px;
     height: 126px;
     width: 126px;
     position: absolute;
@@ -220,20 +273,54 @@ aside{
 
 .iconMenu{
     height: fit-content;
-    width: max-content;
+    width: 222px;
     display: flex;
     flex-direction: column;
     padding: 8px;
-    border-radius: 24px;
-    background-color: rgb(52 52 52 / 50%);
+    border-radius: 32px;
+    background-color: rgb(52 52 52 / 35%);
     transform: translate(calc(-100% - 30px), calc(-50% + 60px));
     filter: drop-shadow(0px 20px 20px rgba(0, 0, 0, 0.6));
     max-height: 300px;
-    overflow: auto;
     flex-wrap: nowrap;
     opacity: 1;
     transition: .2s;
+    overflow: hidden;
     backdrop-filter: blur(12px);
+    border: 1px solid #ffffff1c;
+}
+
+.iconMenu .column{
+    overflow: auto;
+}
+
+.categories{
+    display: flex;
+    flex-direction: row;
+    width: calc(100% - 0px);
+    overflow: auto;
+    padding: 0px 8px 0px 8px;
+    height: 94px;
+    flex-wrap: nowrap;
+    margin-left: -8px;
+}
+
+.categories .category{
+    padding: 16px 30px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 32px;
+    margin-right: 6px;
+    height: fit-content;
+    width: fit-content;
+    flex-shrink: 3;
+}
+
+.categories .category:last-child{
+    margin-right: 0px;
+}
+
+.category p{
+    margin: 0px;
 }
 
 .iconMenu::-webkit-scrollbar {
@@ -256,11 +343,31 @@ aside{
     height: fit-content;
     align-items: center;
     padding: 16px 22px;
-    border-radius: 20px;
+    border-radius: 26px;
     color: white;
     font-family: 'Manrope', sans-serif;
     transition: .2s;
     cursor: default;
+}
+
+.iconMenu .column{
+    display: flex;
+    flex-direction: row;
+    /* width: calc(100% + 16px); */
+    flex-wrap: wrap;
+    /* padding: 8px; */
+    /* margin-left: -8px; */
+    border-radius: 0px 0px 24px 24px;
+}
+
+.iconElement{
+    width: fit-content;
+    height: fit-content;
+    padding: 22px 22px;
+}
+
+.iconElement p{
+    display: none;
 }
 
 .hidden{
@@ -269,6 +376,10 @@ aside{
 
 .listElement .icon{
     margin-right: 10px;
+}
+
+.iconElement .icon{
+    margin-right: 0px;
 }
 
 .listElement:hover{
@@ -367,12 +478,12 @@ aside{
 #keysInputBox {
     min-width: 100px;
     height: 34px;
-    padding: 8px;
+    padding: 12px 12px 72px 12px;
     display: flex;
     flex-direction: row;
     align-items: center;
     border-radius: 30px;
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.0);
     transition: .2s;
     position: relative;
@@ -395,7 +506,7 @@ aside{
 }
 
 #keysInputBox .firstKey{
-    border-radius: 30px 14px 14px 30px;
+    border-radius: 20px 10px 10px 10px;
 }
 
 .active{
@@ -408,27 +519,41 @@ aside{
     filter: blur(8px);
 }
 
-#clearInputButton{
+#clearInputButton, #clearTerminalInputBox{
     transition: .2s;
     width: 20px;
     height: 20px;
     position: absolute;
-    top: calc(50% - 10px);
+    top: calc(50% - 37px);
     left: calc(100% - 40px);
     padding: 0px!important;
     background-color: transparent!important;
     opacity: 0;
 }
 
-#saveButton{
-    width: fit-content;
+.saveButtonBack{
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 0px 0px 30px 30px;
+    height: 62px;
+    width: 100%;
+}
+
+#saveButton, #saveTerminalButton{
+    width: calc(100% - 56px);
     height: fit-content;
-    padding: 16px 20px;
+    padding: 12px 20px;
     display: flex;
     align-items: center;
     border-radius: 50px;
     background-color: rgba(255, 255, 255, 0.3);
     margin-top: 10px;
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    justify-content: center;
 }
 
 #saveButton p{
@@ -436,16 +561,20 @@ aside{
     color: white;
 }
 
-#combinationsBox{
+#combinationsBox, #terminalCommandsBox{
     width: 100%;
     height: fit-content;
     display: flex;
     flex-direction: row;
     border-radius: 16px;
     flex-wrap: wrap;
+    height: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    align-content: flex-start;
 }
 
-.combination{
+.combination, .terminalCommand, .combinationSkeleton{
     position: relative;
     width: fit-content;
     height: fit-content;
@@ -463,17 +592,27 @@ aside{
     transition: .3s;
 }
 
-.combination p{
+.combination p, .terminalCommand .p{
     margin: 0px;
     transition: .3s;
 }
 
-.combination:hover .combinationRemoveButton{
+.combinationSkeleton{
+    opacity: .5;
+}
+
+.combinationSkeleton p{
+    margin: 0px;
+    opacity: 0;
+}
+
+.combination:hover .combinationRemoveButton, .terminalCommand:hover .commandRemoveButton{
     opacity: 1;
     transform: scale(1);
 }
 
-.combination:hover p{
+
+.combination:hover p, .terminalCommand:hover p{
     filter: blur(10px);
 }
 
@@ -502,7 +641,7 @@ aside{
 
 .semiScreen{
     width: calc(50% - 60px);
-    padding: 0px 30px 0px 30px;
+    padding: 0px 60px 0px 0px;
     display: flex;
     flex-direction: column;
 }
@@ -540,7 +679,7 @@ aside{
 }
 
 .button:active{
-    transform: scale(0.93);
+    transform: scale(0.96);
 }
 
 @keyframes shake {

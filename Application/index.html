@@ -46,12 +46,13 @@
                 <div class="icon" style="background-image: url(resources/icons/info.png);"></div>
                 <p>Об устройстве</p>
             </div>
+            <div class="asideWidget"><div class="icon" style="background-image: url(resources/icons/info.png);"></div><p>Подключено</p></div>
         </div>
     </aside>
     <div class="content" id="iconsSet">
         <div class="pageHead">
             <h1>Настройка экранов</h1>
-            <p>Выберите необходимый значок для каждого из экранов</p>
+            <p>Выберите необходимый значок или виджет для каждого из экранов</p>
         </div>
         <div id="previewBox">
             <div id="preview">
@@ -71,42 +72,53 @@
         </div>
     </div>
     <div class="content hiddenContent" id="keysSet">
-        <div class="semiScreen">
+        <div class="pageHead absoluteHead">
             <h1>Сочетания клавиш</h1>
+            <p>Сохраняйте необходимые сочетания клавиш для быстрого доступа</p>
+        </div>
+        <div class="semiScreen">
             <h2>Добавить новое сочетание</h2>
             <div id="keysInputBox">
                 <div class="icon" id="clearInputButton" style="background-image: url(resources/icons/close.png);"></div>
-            </div>
-            <div id="saveButton" class="button">
-                <p>Добавить сочетание</p>
+                <div class="saveButtonBack"></div>
+                <div id="saveButton" class="button">
+                    <p>Добавить сочетание</p>
+                </div>
             </div>
         </div>
-        <div class="semiScreen" style="padding: 86px 30px 0px 30px;">
+        <div class="semiScreen">
             <h2>Сохранённые сочетания</h2>
             <p style="margin-top: -10px;" class="hint" id="emptyCombinationsHint">Нет добавленных сочетаний</p>
-            <div id="combinationsBox"></div>
+            <div id="combinationsBox">
+                <div class="combinationSkeleton"><div class="combinationRemoveButton"></div><p>META + D</p></div>
+                <div class="combinationSkeleton"><div class="combinationRemoveButton"></div><p>SHIFT + META + W + D</p></div>
+                <div class="combinationSkeleton"><div class="combinationRemoveButton"></div><p>SHIFT + META</p></div>
+                <div class="combinationSkeleton"><div class="combinationRemoveButton"></div><p>W + D</p></div>
+                <div class="combinationSkeleton"><div class="combinationRemoveButton"></div><p>SHIFT + META + W + D</p></div>
+                <div class="combinationSkeleton"><div class="combinationRemoveButton"></div><p>META + W + D</p></div>
+            </div>
         </div>
     </div>
-    <div class="content hiddenContent" id="terminalSet">
+    <!--<div class="content hiddenContent" id="terminalSet">
         <div class="semiScreen">
             <h1>Настройка шаблонов</h1>
             <div class="subHead">
                 <h2>Добавление шаблонов</h2>
                 <p>Добавьте необходимые шаблоны команд Терминала и выполняйте их по одному нажатию</p>
             </div>
-            <div id="keysInputBox">
-                <div class="icon" id="clearInputButton" style="background-image: url(resources/icons/close.png);"></div>
-            </div>
-            <div id="saveButton" class="button">
+            <input id="terminalInputBox">
+                <div class="icon" id="clearTerminalInputButton" style="background-image: url(resources/icons/close.png);"></div>
+            </input>
+            <div id="saveTerminalButton" class="button">
                 <p>Добавить сочетание</p>
             </div>
         </div>
         <div class="semiScreen" style="padding: 86px 30px 0px 30px;">
             <h2>Сохранённые сочетания</h2>
-            <p style="margin-top: -10px;" class="hint" id="emptyCombinationsHint">Нет добавленных сочетаний</p>
-            <div id="combinationsBox"></div>
+            <p style="margin-top: -10px;" class="hint" id="emptyCommandsHint">Нет добавленных команд</p>
+            <div id="treminalCommandsBox"></div>
         </div>
-    </div>
+    </div>-->
     <div class="content hiddenContent" id="info">
         <h1>Об устройстве</h1>
         <p>SwiftController v. 1.0<br>

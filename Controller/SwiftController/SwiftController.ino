@@ -8,6 +8,8 @@
 #include "GyverTimer.h"
 #include "icons.h"
 
+#define DIM_ENABLED false
+
 #define DEVICE_INFO "SwiftController;S/N092300001"
 
 #define SCREEN_WIDTH 128
@@ -16,16 +18,23 @@
 #define OLED_RESET -1
 #define SCREEN_ADDRESS 0x3C
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-BleKeyboard keyboard("SwiftController", "Higlight House", 100);
+Adafruit_SSD1306 display1(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+Adafruit_SSD1306 display2(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+Adafruit_SSD1306 display3(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+Adafruit_SSD1306 display4(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+BleKeyboard keyboard("mroee", "Higlight House", 100);
 
 GTimer connectionTimer(MS);
+GTimer brTimer(MS);
 
 //static NimBLEUUID bmeServiceUUID("91bad492-b950-4226-aa2b-4ede9fa42f59");
 //static NimBLEUUID stringUUID("cba1d466-344c-4be3-ab3f-189f80dd7518");
 
 #define ICON_HEIGHT 60
 #define ICON_WIDTH 60
+
+#define OR_ICON_HEIGHT 64
+#define OR_ICON_WIDTH 64
 
 /*bool connectToServer(BLEAddress pAddress) {
    BLEClient* pClient = BLEDevice::createClient();
@@ -66,6 +75,14 @@ struct KeyValuePair {
   char key[MAX_KEY_LENGTH];
   char value[MAX_VALUE_LENGTH];
 };
+
+void TCA9548A(uint8_t bus) {
+  Wire.beginTransmission(0x70);
+  Wire.write(1 << bus);
+  if(Wire.endTransmission()) {
+    Serial.println("WIRE ERROR");
+  };
+}
 
 class KeyValueCollection {
 public:
@@ -135,25 +152,124 @@ void setup() {
   Serial.begin(115200);
   Serial.setTimeout(10);
   Serial.println(DEVICE_INFO);
+
+  pinMode(5, OUTPUT);
+  pinMode(36, INPUT);
+  pinMode(4, INPUT);
+  pinMode(34, INPUT);
+  pinMode(2, INPUT);
+  pinMode(15, INPUT);
+  digitalWrite(5, HIGH);
+
+  Wire.begin();
   connectionTimer.setInterval(500);
+  brTimer.setInterval(100);
   Serial.println("Starting SwiftController");
-  display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
-  display.clearDisplay();
-  display.drawBitmap((display.width() - ICON_WIDTH) / 2, (display.height() - ICON_HEIGHT) / 2, logo, ICON_WIDTH, ICON_HEIGHT, 1);
-  display.display();
+
+  TCA9548A(4);
+  display1.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
+  display1.setRotation(2);
+  display1.clearDisplay();
+  display1.drawBitmap((display1.width() - ICON_WIDTH) / 2, (display1.height() - ICON_HEIGHT) / 2, copy_ico, ICON_WIDTH, ICON_HEIGHT, 1);
+  display1.display();
+
+  TCA9548A(5);
+  display2.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
+  display2.setRotation(2);
+  display2.clearDisplay();
+  display2.drawBitmap((display2.width() - ICON_WIDTH) / 2, (display2.height() - ICON_HEIGHT) / 2, paste_ico, ICON_WIDTH, ICON_HEIGHT, 1);
+  display2.display();
+
+  TCA9548A(2);
+  display3.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
+  display3.clearDisplay();
+  display3.drawBitmap((display3.width() - ICON_WIDTH) / 2, (display3.height() - ICON_HEIGHT) / 2, mute_ico, ICON_WIDTH, ICON_HEIGHT, 1);
+  display3.display();
+
+  TCA9548A(3);
+  display4.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
+  display4.clearDisplay();
+  display4.drawBitmap((display4.width() - ICON_WIDTH) / 2, (display4.height() - ICON_HEIGHT) / 2, lock, ICON_WIDTH, ICON_HEIGHT, 1);
+  display4.display();
   keyboard.begin();
   Serial.println("Ready");
-  display.clearDisplay();
+
+  TCA9548A(2);
+  display1.clearDisplay();
 }
 
 void loop() {
-  if(connectionTimer.isReady()) Serial.println(DEVICE_INFO);
+  if (connectionTimer.isReady()) {
+    Serial.println(DEVICE_INFO);
+    TCA9548A(4);
+    //display1.setRotation(2);
+    //display1.clearDisplay();
+    display1.drawBitmap((display1.width() - ICON_WIDTH) / 2, (display1.height() - ICON_HEIGHT) / 2, copy_ico, ICON_WIDTH, ICON_HEIGHT, 1);
+    display1.display();
+  };
+
+  if (DIM_ENABLED) {
+    if (brTimer.isReady()) {
+      Serial.println(analogRead(36));
+      if (analogRead(36) > 10) {
+        setHighBrightness();
+      } else {
+        setLowBrightness();
+      }
+    }
+  }
+
+
+
+  if (analogRead(4) > 4090) {
+    Serial.println("1st");
+    executeShortcut(collection.get("1"));
+    delay(100);
+  }
+  if (analogRead(34) > 4090) {
+    Serial.println("2nd");
+    executeShortcut(collection.get("2"));
+    delay(100);
+  }
+  if (analogRead(2) > 4090) {
+    Serial.println("3rd");
+    executeShortcut(collection.get("3"));
+    delay(100);
+  }
+  if (analogRead(15) > 4090) {
+    Serial.println("4th");
+    executeShortcut(collection.get("4"));
+    delay(100);
+  }
+
   if (Serial.available() > 0) {
     char received[MAX_KEY_LENGTH];
     int len = Serial.readBytesUntil('\n', received, MAX_KEY_LENGTH - 1);
     received[len] = '\0';
     parseString(received);
   }
+}
+
+void setHighBrightness() {
+  TCA9548A(4);
+  display1.dim(false);
+  TCA9548A(5);
+  display2.dim(false);
+  TCA9548A(2);
+  display3.dim(false);
+  TCA9548A(3);
+  display4.dim(false);
+}
+
+void setLowBrightness() {
+  TCA9548A(4);
+  display1.dim(true);
+  TCA9548A(5);
+  display2.dim(true);
+  TCA9548A(2);
+  display3.dim(true);
+  TCA9548A(3);
+  display4.dim(true);
 }
 
 void executeShortcut(String str) {
@@ -238,16 +354,29 @@ void parseString(String str) {
   }
 }
 
-void changeIcon(int screenNumber, int iconNumber) {
+void changeIcon(uint8_t screenNumber, uint8_t iconNumber) {
   Serial.print("Changing: ");
   Serial.print(screenNumber);
   Serial.print(" Icon: ");
   Serial.println(iconNumber);
-  drawIcon(getIcon(iconNumber));
+  switch (screenNumber) {
+    case 1:
+      drawIconS1(getIcon(iconNumber));
+      break;
+    case 2:
+      drawIconS2(getIcon(iconNumber));
+      break;
+    case 3:
+      drawIconS3(getIcon(iconNumber));
+      break;
+    case 4:
+      drawIconS4(getIcon(iconNumber));
+      break;
+  }
 }
 
 
-const unsigned char* ICONS_LIST[] = {copy_ico, paste_ico, mute_ico, volumeup, volumedown, pause_ico, play, backward, forward, screenshot, search, moon, lock};
+const unsigned char* ICONS_LIST[] = { copy_ico, paste_ico, mute_ico, volumeup, volumedown, pause_ico, play, backward, forward, screenshot, search, moon, lock };
 
 const unsigned char* getIcon(int number) {
   if (number >= 0 && number < sizeof(ICONS_LIST) / sizeof(ICONS_LIST[0])) {
@@ -257,8 +386,30 @@ const unsigned char* getIcon(int number) {
   }
 }
 
-void drawIcon(const unsigned char* icon) {
-  display.clearDisplay();
-  display.drawBitmap((display.width() - ICON_WIDTH) / 2, (display.height() - ICON_HEIGHT) / 2, icon, ICON_WIDTH, ICON_HEIGHT, 1);
-  display.display();
+void drawIconS1(const unsigned char* icon) {
+  TCA9548A(4);
+  display1.clearDisplay();
+  display1.drawBitmap((display1.width() - ICON_WIDTH) / 2, (display1.height() - ICON_HEIGHT) / 2, icon, ICON_WIDTH, ICON_HEIGHT, 1);
+  display1.display();
+}
+
+void drawIconS2(const unsigned char* icon) {
+  TCA9548A(5);
+  display2.clearDisplay();
+  display2.drawBitmap((display2.width() - ICON_WIDTH) / 2, (display2.height() - ICON_HEIGHT) / 2, icon, ICON_WIDTH, ICON_HEIGHT, 1);
+  display2.display();
+}
+
+void drawIconS3(const unsigned char* icon) {
+  TCA9548A(2);
+  display3.clearDisplay();
+  display3.drawBitmap((display3.width() - ICON_WIDTH) / 2, (display3.height() - ICON_HEIGHT) / 2, icon, ICON_WIDTH, ICON_HEIGHT, 1);
+  display3.display();
+}
+
+void drawIconS4(const unsigned char* icon) {
+  TCA9548A(3);
+  display4.clearDisplay();
+  display4.drawBitmap((display4.width() - ICON_WIDTH) / 2, (display4.height() - ICON_HEIGHT) / 2, icon, ICON_WIDTH, ICON_HEIGHT, 1);
+  display4.display();
 }
