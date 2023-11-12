@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 setTimeout(() => { var _a; return (_a = document.getElementById('preloader')) === null || _a === void 0 ? void 0 : _a.classList.add('hiddenPreloader'); }, 2000);
 setTimeout(() => document.getElementById('logoAnimation').style.display = "none", 2300);
 const { SerialPort } = require('serialport');
+let connectionWindowOpened = false;
 let isConnected = true;
 let receivedData = false;
 let globalPortName = '';
@@ -75,13 +76,24 @@ function readData() {
     });
 }
 function main() {
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         //console.log("Port opened: " + globalPort.isOpen + " Connected: " + isConnected);
         if (isConnected) {
             closeModalWindow('connection');
+            (_a = document.getElementById("disconnectedMessage")) === null || _a === void 0 ? void 0 : _a.classList.add("hidden");
+            document.getElementById("connectionIcon").style.backgroundImage = "url(resources/icons/connected.png)";
+            (_b = document.getElementById("preview")) === null || _b === void 0 ? void 0 : _b.classList.remove("blurredPreview");
+            connectionWindowOpened = false;
         }
         else {
-            showModalWindow('connection');
+            /*if(!connectionWindowOpened){
+              showModalWindow('connection');
+              document.getElementById("disconnectedMessage")?.classList.remove("hidden");
+              document.getElementById("connectionIcon")!.style.backgroundImage = "url(resources/icons/disconnected.png)";
+              document.getElementById("preview")?.classList.add("blurredPreview");
+              connectionWindowOpened = true;
+            }*/
         }
         if (!isConnected) {
             for (const portName of portNames) {
@@ -119,6 +131,18 @@ globalPort.on('error', function () {
 setInterval(() => main(), 1500);
 const iconNames = ['copy', 'paste', 'mute', 'volumeup', 'volumedown', 'pause', 'play', 'backward', 'forward', 'screenshot', 'search', 'moon', 'lock'];
 const names = ['Копировать', 'Вставить', 'Без звука', 'Громкость +', 'Громкость -', 'Пауза', 'Продолжить', 'Назад', 'Вперёд', 'Снимок экрана', 'Поиск', 'Не беспокоить', 'Заблокировать'];
+/*addEventListener("load", (event) => {
+  let iconsSet: string = `
+          <div class="column iconsColumn">
+            ${iconNames.map((name, index) => `
+                <div class="listElement iconElement button">
+                    <div class="icon" style="background-image: url(resources/icons/${name}.png);"></div>
+                    <p>${names[index]}</p>
+                </div>
+            `).join('')}
+          </div>`;
+  document.getElementById("iconsSectionInner")!.innerHTML = iconsSet;
+});*/
 class SettingsPopup {
     constructor(element) {
         this.menuOpened = false;
@@ -158,8 +182,7 @@ class SettingsPopup {
         const menuHTML = `
           <div class="categories">
             <div class="category iconsCategory"><p>Значки</p></div>
-            <div class="category functionsCategory"><p>Сочетания</p></div>
-            <div class="category functionsCategory"><p>Команды</p></div>
+            <div class="category functionsCategory"><p>Виджеты</p></div>
           </div>
           <div class="column iconsColumn">
             ${iconNames.map((name, index) => `
@@ -228,6 +251,7 @@ function closeModalWindow(ID) {
     document.getElementById("modalWindowBack").classList.add("hiddenModalBack");
 }
 function showModalWindow(ID) {
+    console.log(ID);
     document.getElementById(ID + "Window").classList.remove('closedModalWindow');
     document.getElementById("modalWindowBack").classList.remove("hiddenModalBack");
 }
@@ -321,19 +345,21 @@ let listenKeys = false;
 //keysInputBox.addEventListener("click", keysListener);
 saveButton.addEventListener("click", saveCombination);
 clearButton.addEventListener("click", clearCombination);
-setActive(keysInputBox);
+setActive(keysInputBox, document);
 function setActive(targetElement, containerElement = document) {
     containerElement.addEventListener('click', (event) => {
         const clickedElement = event.target;
-        if (clickedElement === targetElement || targetElement.contains(clickedElement)) {
+        if (clickedElement === targetElement /*|| targetElement.contains(clickedElement)*/) {
             targetElement.classList.add('active');
             if (!listenKeys)
                 keysListener();
         }
         else {
-            targetElement.classList.remove('active');
-            if (listenKeys)
-                keysListener();
+            if (targetElement != null) {
+                targetElement.classList.remove('active');
+                if (listenKeys)
+                    keysListener();
+            }
         }
     });
 }
@@ -443,41 +469,169 @@ function update() {
         });
         //combinationsBox!.style.backgroundImage = "url(resources/images/combinationsSkeleton.png)";
     }
-}
-const noble = require('@abandonware/noble');
-const readline = require('readline');
-// Инициализация noble
-noble.on('stateChange', (state) => {
-    if (state === 'poweredOn') {
-        // Начинаем поиск устройств с заданным именем (например, "mroee")
-        noble.startScanning([], true);
-    }
-    else {
-        noble.stopScanning();
-    }
-});
-// Обработка обнаруженных устройств
-noble.on('discover', (peripheral) => {
-    console.log("------ " + peripheral.advertisement.localName);
-    // Проверяем имя устройства
-    if (peripheral.advertisement.localName === 'mroee') {
-        // Подключаемся к устройству
-        noble.stopScanning();
-        connectToDevice(peripheral);
-    }
-});
-// Функция подключения к устройству
-function connectToDevice(peripheral) {
-    peripheral.connect((error) => {
-        if (error) {
-            console.error('Ошибка подключения к устройству:', error);
-            return;
-        }
-        console.log('Успешное подключение к устройству!');
-        sendStringToDevice(peripheral);
+    const combinationsPanel = document.getElementById("combinationsBox");
+    const combinationConfigPanel = document.getElementById("combinationsSectionInner");
+    copyCombinations(combinationsPanel, combinationConfigPanel);
+    let draggables = document.querySelectorAll("#combinationsSectionInner .draggable");
+    draggables.forEach(draggable => {
+        new DraggableElement(draggable);
     });
 }
-function sendStringToDevice(peripheral) {
-    let characteristics = peripheral.discoverServices();
-    alert(characteristics);
+function copyCombinations(source, target) {
+    target.innerHTML = '';
+    for (const child of source.children) {
+        //child.classList.add("draggable");
+        let clone = child.cloneNode(true);
+        clone.classList.add("draggable");
+        target.appendChild(clone);
+    }
+    const removeButtons = target.querySelectorAll(".combinationRemoveButton");
+    removeButtons.forEach(button => {
+        button.remove();
+    });
+}
+/*const noble = require('@abandonware/noble');
+const readline = require('readline');
+
+// Инициализация noble
+noble.on('stateChange', (state: string) => {
+  if (state === 'poweredOn') {
+    // Начинаем поиск устройств с заданным именем (например, "mroee")
+    noble.startScanning([], true);
+  } else {
+    noble.stopScanning();
+  }
+});
+
+// Обработка обнаруженных устройств
+noble.on('discover', (peripheral: { advertisement: { localName: string; txPowerLevel: string }; }) => {
+  //console.log("------ " + peripheral.advertisement.localName);
+  // Проверяем имя устройства
+  if (peripheral.advertisement.localName === 'mroee') {
+
+    // Подключаемся к устройству
+    noble.stopScanning();
+    connectToDevice(peripheral);
+  }
+});
+
+// Функция подключения к устройству
+function connectToDevice(peripheral: { advertisement?: { localName: string; }; connect?: any; disconnect?: any; }) {
+  peripheral.connect((error: any) => {
+    if (error) {
+      console.error('Ошибка подключения к устройству:', error);
+      return;
+    }
+
+    console.log('Успешное подключение к устройству!');
+
+    sendStringToDevice(peripheral);
+  });
+}
+
+function sendStringToDevice(peripheral: { advertisement?: { localName: string; } | undefined; connect?: any; disconnect?: any; discoverServices?: any; }) {
+  let characteristics = peripheral.discoverServices();
+  //alert(characteristics);
+}*/
+class DraggableElement {
+    constructor(element) {
+        this.underDroppable = false;
+        this.underElement = null;
+        this.currentDroppable = null;
+        this.originX = 0;
+        this.originY = 0;
+        this.shiftX = 0;
+        this.shiftY = 0;
+        this.element = element;
+        this.element.addEventListener('mousedown', (this.onMouseDown.bind(this)));
+        this.element.ondragstart = function () {
+            return false;
+        };
+    }
+    onMouseDown(event) {
+        this.originX = this.element.getBoundingClientRect().left;
+        this.originY = this.element.getBoundingClientRect().top;
+        const shiftX = event.clientX - this.element.getBoundingClientRect().left;
+        const shiftY = event.clientY - this.element.getBoundingClientRect().top;
+        //event.clientX - ball!.getBoundingClientRect().left - 42;
+        this.shiftX = shiftX;
+        this.shiftY = shiftY;
+        this.clone = this.element.cloneNode(true);
+        document.body.appendChild(this.clone);
+        this.clone.style.position = 'absolute';
+        this.clone.style.zIndex = '1000';
+        this.clone.style.transition = "0s";
+        this.clone.id += 'Clone';
+        this.element.style.transition = '0s';
+        this.element.style.opacity = '0';
+        this.moveAt(event.pageX, event.pageY);
+        const onMouseMove = (event) => {
+            const previews = document.querySelectorAll(".previewIconBox");
+            previews.forEach(preview => {
+                preview.classList.add("dashedPreview");
+            });
+            this.moveAt(event.pageX, event.pageY);
+            //this.clone!.style.backgroundColor = "pink!important";
+            //this.clone!.hidden = true;
+            this.clone.style.display = "none";
+            const elemBelow = document.elementFromPoint(event.clientX, event.clientY);
+            this.clone.style.display = "block";
+            //this.clone!.hidden = false;
+            console.log(elemBelow === null || elemBelow === void 0 ? void 0 : elemBelow.innerHTML);
+            if (!elemBelow)
+                return;
+            const droppableBelow = elemBelow.closest('.droppable');
+            if (this.currentDroppable !== droppableBelow) {
+                if (this.currentDroppable) {
+                    this.leaveDroppable(this.currentDroppable);
+                }
+                this.currentDroppable = droppableBelow;
+                if (this.currentDroppable) {
+                    this.enterDroppable(this.currentDroppable);
+                }
+            }
+        };
+        document.addEventListener('mousemove', onMouseMove);
+        this.clone.onmouseup = () => {
+            const previews = document.querySelectorAll(".previewIconBox");
+            previews.forEach(preview => {
+                preview.classList.remove("dashedPreview");
+            });
+            document.removeEventListener('mousemove', onMouseMove);
+            this.clone.onmouseup = null;
+            this.clone.style.transition = '.3s';
+            this.element.style.transition = '.3s';
+            if (!this.underDroppable) {
+                this.clone.style.left = this.originX + 'px';
+                this.clone.style.top = this.originY + 'px';
+            }
+            else {
+                this.clone.style.left =
+                    this.underElement.getBoundingClientRect().left + (this.underElement.offsetWidth - this.clone.offsetWidth) / 2 + 'px';
+                this.clone.style.top =
+                    this.underElement.getBoundingClientRect().top + (this.underElement.offsetHeight - this.clone.offsetHeight) / 2 + 'px';
+                setTimeout(() => {
+                    this.clone.style.filter = 'blur(20px)';
+                    this.clone.style.transform = 'scale(.6)';
+                    this.underElement.classList.remove('droppableActive');
+                }, 200);
+            }
+            setTimeout(() => (this.clone.style.opacity = '0'), 300);
+            setTimeout(() => (this.element.style.opacity = '1'), 200);
+            setTimeout(() => this.clone.remove(), 600);
+        };
+    }
+    moveAt(pageX, pageY) {
+        this.clone.style.left = pageX - this.shiftX + 'px';
+        this.clone.style.top = pageY - this.shiftY + 'px';
+    }
+    enterDroppable(elem) {
+        elem.classList.add('droppableActive');
+        this.underDroppable = true;
+        this.underElement = elem;
+    }
+    leaveDroppable(elem) {
+        elem.classList.remove('droppableActive');
+        this.underDroppable = false;
+    }
 }

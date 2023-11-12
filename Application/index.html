@@ -16,7 +16,7 @@
     </div>
     <div id="modalWindowBack" class="hiddenModalBack">
         <div class="modalWindow closedModalWindow" id="connectionWindow">
-            <!--<div class="closeButton" onClick="closeModalWindow('connectionWindow')"></div>-->
+            <div class="closeButton" onClick="closeModalWindow('connection')"></div>
             <div style="display: flex; flex-direction: row; align-items: center;">
                 <h2>Не сработало.</h2>
             </div>
@@ -49,7 +49,8 @@
                 <div class="popup">
                     <p>Подключено</p>
                 </div>
-                <div class="icon" style="background-image: url(resources/icons/connected.png);"></div>
+                <div class="icon" id="connectionIcon" style="background-image: url(resources/icons/connected.png);">
+                </div>
             </div>
         </div>
     </header>
@@ -58,18 +59,36 @@
             <h1>Основные настройки</h1>
             <p>Выберите необходимый значок или виджет для каждого из экранов</p>
         </div>
+        <div id="configurationPanel">
+            <div id="dragIcon" class="draggable"></div>
+            <div class="configPanel" id="combinationsSection">
+                <div class="sectionHead">
+                    <h2>Сочетания клавиш</h2>
+                    <p>Перестскивайте необходимые сочетания на нужный экран</p>
+                </div>
+                <div id="combinationsSectionInner"></div>
+            </div>
+            <div class="configPanel" id="iconsSection">
+                <div class="sectionHead">
+                    <h2>Команды</h2>
+                    <p>Перестскивайте необходимые команды на нужный экран</p>
+                </div>
+                <div id="iconsSectionInner"></div>
+            </div>
+        </div>
         <div id="previewBox">
+            <p id="disconnectedMessage" class="hidden">Сбой подключения</p>
             <div id="preview">
-                <div class="previewIconBox" id="iconBox1" style="top: 76px; left: 76px">
+                <div class="previewIconBox droppable" id="iconBox1" style="top: 76px; left: 76px">
                     <div class="icon previewIcon" style="background-image: url();"></div>
                 </div>
-                <div class="previewIconBox" id="iconBox2" style="top: 76px; left: calc(50% + 37px)">
+                <div class="previewIconBox droppable" id="iconBox2" style="top: 76px; left: calc(50% + 37px)">
                     <div class="icon previewIcon" style="background-image: url();"></div>
                 </div>
-                <div class="previewIconBox" id="iconBox3" style="top: calc(50% + 35px); left: 76px">
+                <div class="previewIconBox droppable" id="iconBox3" style="top: calc(50% + 35px); left: 76px">
                     <div class="icon previewIcon" style="background-image: url();"></div>
                 </div>
-                <div class="previewIconBox" id="iconBox4" style="top: calc(50% + 35px); left: calc(50% + 35px)">
+                <div class="previewIconBox droppable" id="iconBox4" style="top: calc(50% + 35px); left: calc(50% + 35px)">
                     <div class="icon previewIcon" style="background-image: url();"></div>
                 </div>
             </div>

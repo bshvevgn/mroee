@@ -3,6 +3,7 @@ setTimeout(() => document.getElementById('logoAnimation')!.style.display = "none
 
 const { SerialPort } = require('serialport')
 
+let connectionWindowOpened = false;
 let isConnected = true;
 let receivedData = false;
 let globalPortName = '';
@@ -79,8 +80,18 @@ async function main() {
 
   if (isConnected) {
     closeModalWindow('connection');
+    document.getElementById("disconnectedMessage")?.classList.add("hidden");
+    document.getElementById("connectionIcon")!.style.backgroundImage = "url(resources/icons/connected.png)";
+    document.getElementById("preview")?.classList.remove("blurredPreview");
+    connectionWindowOpened = false;
   } else {
-    showModalWindow('connection');
+    /*if(!connectionWindowOpened){
+      showModalWindow('connection');
+      document.getElementById("disconnectedMessage")?.classList.remove("hidden");
+      document.getElementById("connectionIcon")!.style.backgroundImage = "url(resources/icons/disconnected.png)";
+      document.getElementById("preview")?.classList.add("blurredPreview");
+      connectionWindowOpened = true;
+    }*/
   }
 
   if (!isConnected) {
@@ -119,6 +130,19 @@ setInterval(() => main(), 1500);
 const iconNames = ['copy', 'paste', 'mute', 'volumeup', 'volumedown', 'pause', 'play', 'backward', 'forward', 'screenshot', 'search', 'moon', 'lock'];
 const names = ['Копировать', 'Вставить', 'Без звука', 'Громкость +', 'Громкость -', 'Пауза', 'Продолжить', 'Назад', 'Вперёд', 'Снимок экрана', 'Поиск', 'Не беспокоить', 'Заблокировать'];
 
+
+/*addEventListener("load", (event) => {
+  let iconsSet: string = `
+          <div class="column iconsColumn">
+            ${iconNames.map((name, index) => `
+                <div class="listElement iconElement button">
+                    <div class="icon" style="background-image: url(resources/icons/${name}.png);"></div>
+                    <p>${names[index]}</p>
+                </div>
+            `).join('')}
+          </div>`;
+  document.getElementById("iconsSectionInner")!.innerHTML = iconsSet;
+});*/
 
 class SettingsPopup {
   private element: HTMLElement;
@@ -165,8 +189,7 @@ class SettingsPopup {
     const menuHTML = `
           <div class="categories">
             <div class="category iconsCategory"><p>Значки</p></div>
-            <div class="category functionsCategory"><p>Сочетания</p></div>
-            <div class="category functionsCategory"><p>Команды</p></div>
+            <div class="category functionsCategory"><p>Виджеты</p></div>
           </div>
           <div class="column iconsColumn">
             ${iconNames.map((name, index) => `
@@ -222,7 +245,7 @@ function selectContent(button: HTMLElement) {
   let buttonID = button.id;
   let id = buttonID.substring(0, buttonID.length - 6);
 
-  if(id !== "iconsSet") {
+  if (id !== "iconsSet") {
     document.getElementById("connectionWidget")?.classList.remove("hiddenAsideWidget");
   } else {
     document.getElementById("connectionWidget")?.classList.add("hiddenAsideWidget");
@@ -249,6 +272,7 @@ function closeModalWindow(ID: string) {
 }
 
 function showModalWindow(ID: string) {
+  console.log(ID);
   document.getElementById(ID + "Window")!.classList.remove('closedModalWindow');
   document.getElementById("modalWindowBack")!.classList.remove("hiddenModalBack");
 }
@@ -368,17 +392,19 @@ let listenKeys = false;
 saveButton.addEventListener("click", saveCombination);
 clearButton.addEventListener("click", clearCombination);
 
-setActive(keysInputBox);
+setActive(keysInputBox, document);
 
 function setActive(targetElement: HTMLElement, containerElement: HTMLElement | Document = document) {
   containerElement.addEventListener('click', (event) => {
     const clickedElement = event.target as HTMLElement;
-    if (clickedElement === targetElement || targetElement.contains(clickedElement)) {
-      targetElement.classList.add('active');
+    if (clickedElement === targetElement /*|| targetElement.contains(clickedElement)*/) {
+      targetElement!.classList.add('active');
       if (!listenKeys) keysListener();
     } else {
-      targetElement.classList.remove('active');
-      if (listenKeys) keysListener();
+      if (targetElement != null) {
+        targetElement!.classList.remove('active');
+        if (listenKeys) keysListener();
+      }
     }
   });
 }
@@ -513,6 +539,33 @@ function update() {
     });
     //combinationsBox!.style.backgroundImage = "url(resources/images/combinationsSkeleton.png)";
   }
+
+  const combinationsPanel = document.getElementById("combinationsBox");
+  const combinationConfigPanel = document.getElementById("combinationsSectionInner");
+  copyCombinations(combinationsPanel, combinationConfigPanel);
+
+  let draggables = document.querySelectorAll<HTMLElement>("#combinationsSectionInner .draggable");
+
+  draggables.forEach(draggable => {
+    new DraggableElement(draggable);
+  });
+}
+
+
+function copyCombinations(source: HTMLElement | null, target: HTMLElement | null) {
+  target!.innerHTML = '';
+
+  for (const child of source!.children) {
+    //child.classList.add("draggable");
+    let clone = child.cloneNode(true) as HTMLElement;
+    clone.classList.add("draggable");
+    target!.appendChild(clone);
+  }
+
+  const removeButtons = target!.querySelectorAll(".combinationRemoveButton") as NodeListOf<HTMLElement>;
+  removeButtons.forEach(button => {
+    button.remove();
+  });
 }
 
 
@@ -525,7 +578,7 @@ function update() {
 
 
 
-const noble = require('@abandonware/noble');
+/*const noble = require('@abandonware/noble');
 const readline = require('readline');
 
 // Инициализация noble
@@ -539,8 +592,8 @@ noble.on('stateChange', (state: string) => {
 });
 
 // Обработка обнаруженных устройств
-noble.on('discover', (peripheral: { advertisement: { localName: string; txPowerLevel: string}; }) => {
-   console.log("------ " + peripheral.advertisement.localName);
+noble.on('discover', (peripheral: { advertisement: { localName: string; txPowerLevel: string }; }) => {
+  //console.log("------ " + peripheral.advertisement.localName);
   // Проверяем имя устройства
   if (peripheral.advertisement.localName === 'mroee') {
 
@@ -567,4 +620,131 @@ function connectToDevice(peripheral: { advertisement?: { localName: string; }; c
 function sendStringToDevice(peripheral: { advertisement?: { localName: string; } | undefined; connect?: any; disconnect?: any; discoverServices?: any; }) {
   let characteristics = peripheral.discoverServices();
   //alert(characteristics);
+}*/
+
+class DraggableElement {
+  private element: HTMLElement;
+  private clone: HTMLElement | undefined;
+  private underDroppable: boolean = false;
+  private underElement: HTMLElement | null = null;
+  private currentDroppable: HTMLElement | null = null;
+  private originX: number = 0;
+  private originY: number = 0;
+  private shiftX: number = 0;
+  private shiftY: number = 0;
+
+  constructor(element: HTMLElement) {
+    this.element = element as HTMLElement;
+    this.element.addEventListener('mousedown', (this.onMouseDown.bind(this)));
+    this.element.ondragstart = function () {
+      return false;
+    };
+  }
+
+  private onMouseDown(event: MouseEvent): void {
+    this.originX = this.element.getBoundingClientRect().left;
+    this.originY = this.element.getBoundingClientRect().top;
+
+    const shiftX = event.clientX - this.element.getBoundingClientRect().left ;
+    const shiftY = event.clientY - this.element.getBoundingClientRect().top ;
+
+    //event.clientX - ball!.getBoundingClientRect().left - 42;
+
+    this.shiftX = shiftX;
+    this.shiftY = shiftY;
+
+    this.clone = this.element.cloneNode(true) as HTMLElement;
+    document.body.appendChild(this.clone);
+
+    this.clone.style.position = 'absolute';
+    this.clone.style.zIndex = '1000';
+    this.clone.style.transition = "0s";
+    this.clone.id += 'Clone';
+
+    this.element.style.transition = '0s';
+    this.element.style.opacity = '0';
+
+    this.moveAt(event.pageX, event.pageY);
+
+    const onMouseMove = (event: { pageX: number; pageY: number; clientX: number; clientY: number; }) => {
+      const previews = document.querySelectorAll<HTMLElement>(".previewIconBox");
+      previews.forEach(preview => {
+        preview.classList.add("dashedPreview");
+      });
+      this.moveAt(event.pageX, event.pageY);
+      //this.clone!.style.backgroundColor = "pink!important";
+      //this.clone!.hidden = true;
+      this.clone!.style.display = "none";
+      const elemBelow = document.elementFromPoint(event.clientX, event.clientY);
+      this.clone!.style.display = "block";
+      //this.clone!.hidden = false;
+
+      console.log(elemBelow?.innerHTML);
+
+      if (!elemBelow) return;
+
+      const droppableBelow = elemBelow.closest('.droppable') as HTMLElement;
+      if (this.currentDroppable !== droppableBelow) {
+        if (this.currentDroppable) {
+          this.leaveDroppable(this.currentDroppable);
+        }
+        this.currentDroppable = droppableBelow;
+        if (this.currentDroppable) {
+          this.enterDroppable(this.currentDroppable);
+        }
+      }
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+
+    this.clone.onmouseup = () => {
+      const previews = document.querySelectorAll<HTMLElement>(".previewIconBox");
+      previews.forEach(preview => {
+        preview.classList.remove("dashedPreview");
+      });
+      document.removeEventListener('mousemove', onMouseMove);
+      this.clone!.onmouseup = null;
+      this.clone!.style.transition = '.3s';
+      this.element.style.transition = '.3s';
+      if (!this.underDroppable) {
+        this.clone!.style.left = this.originX + 'px';
+        this.clone!.style.top = this.originY + 'px';
+      } else {
+        this.clone!.style.left =
+        this.underElement!.getBoundingClientRect().left + (this.underElement!.offsetWidth - this.clone!.offsetWidth) / 2 + 'px';
+        this.clone!.style.top =
+        this.underElement!.getBoundingClientRect().top + (this.underElement!.offsetHeight - this.clone!.offsetHeight) / 2 + 'px';
+        setTimeout(() => {
+          this.clone!.style.filter = 'blur(20px)';
+          this.clone!.style.transform = 'scale(.6)';
+          this.underElement!.classList.remove('droppableActive');
+        }, 200);
+      }
+      setTimeout(() => (this.clone!.style.opacity = '0'), 300);
+      setTimeout(() => (this.element.style.opacity = '1'), 200);
+      setTimeout(() => this.clone!.remove(), 600);
+    };
+  }
+
+  private moveAt(pageX: number, pageY: number): void {
+    this.clone!.style.left = pageX - this.shiftX + 'px';
+    this.clone!.style.top = pageY - this.shiftY + 'px';
+  }
+
+  private enterDroppable(elem: HTMLElement): void {
+    elem.classList.add('droppableActive');
+    this.underDroppable = true;
+    this.underElement = elem;
+  }
+
+  private leaveDroppable(elem: HTMLElement): void {
+    elem.classList.remove('droppableActive');
+    this.underDroppable = false;
+  }
+
+  
 }
+
+
+
+
