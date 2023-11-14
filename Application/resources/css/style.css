@@ -14,8 +14,8 @@
 }
 
 @font-face {
-    font-family: Urbanist;
-    src: url(../fonts/Urbanist.ttf);
+    font-family: Onest;
+    src: url(../fonts/Onest.ttf);
 }
 
 body{
@@ -26,13 +26,18 @@ body{
 }
 
 h1, h2, p{
-    font-family: 'Manrope', sans-serif;
+    font-family: 'Onest', sans-serif;
     color: white;
     cursor: default;
+    /* font-weight: 500; */
 }
 
 h1, h2{
-    font-weight: 600;
+    font-weight: 400;
+}
+
+p{
+    font-weight: 200;
 }
 
 .dragArea{
@@ -100,8 +105,8 @@ header{
 
 #mainLogo{
     background-image: url(../icons/logo.png);
-    height: 40px;
-    width: 40px;
+    height: 42px;
+    width: 42px;
     filter: invert(1);
 }
 
@@ -118,7 +123,7 @@ aside{
 }
 
 .buttonsContainer{
-    background-color: #212121;
+    background-color: #21212100;
     height: fit-content;
     width: max-content;
     display: flex;
@@ -135,13 +140,15 @@ aside{
 }
 
 .asideButton{
+    background-color: #ffffff1c;
+    margin-left: 4px;
     display: flex;
     flex-direction: row;
     align-items: center;
     height: fit-content;
     width: max-content;
     align-items: center;
-    padding: 16px 22px;
+    padding: 14px 18px;
     border-radius: 31px;
     flex-wrap: nowrap;
     width: fit-content;
@@ -289,7 +296,7 @@ aside{
 }
 
 .pageHead h1{
-    margin-bottom: 0px;
+    margin-bottom: -4px;
     /* width: 100%; */
     font-size: 40px;
 }
@@ -333,7 +340,7 @@ aside{
     top: 50%;
     left: 100%;
     transform: translate(-50%, -50%);
-    border: 10px solid rgb(0 0 0);
+    border: 8px solid rgb(0 0 0);
     z-index: 10;
     background-image: url(../icons/rightArrows.png);
     background-size: 30%;
@@ -346,8 +353,8 @@ aside{
 }
 
 .configPanel{
-    height: calc(50% - 5px);
-    margin-bottom: 10px;
+    height: calc(50% - 2px);
+    margin-bottom: 4px;
     background-color: rgba(255,255,255,0.1);
     width: calc(100% - 2px);
     border-radius: 30px;
@@ -460,7 +467,6 @@ aside{
 }
 
 .previewIconBox:hover {
-    transition: 200ms 0ms;
     border: 4px solid rgba(255, 255, 255, 0.4);
 }
 
@@ -470,7 +476,7 @@ aside{
     height: 129px;
     width: 129px;
     position: absolute;
-    transition: 200ms 0ms;
+    transition: .2s!important;
 }
 
 .previewIconBox.droppableActive {
@@ -626,6 +632,7 @@ aside{
     width: 46px;
     opacity: .8;
     filter: drop-shadow(0px 0px 20px rgba(255, 255, 255, 1));
+    transition: .1s;
 }
 
 .modalWindow {
@@ -709,12 +716,12 @@ aside{
 #keysInputBox {
     min-width: 100px;
     max-width: 670px;
-    height: 34px;
-    padding: 12px 12px 72px 12px;
+    height: 46px;
+    padding: 6px 42px 6px 4px;
     display: flex;
     flex-direction: row;
     align-items: center;
-    border-radius: 30px;
+    border-radius: 36px;
     background-color: rgba(255, 255, 255, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.0);
     transition: .2s;
@@ -726,7 +733,7 @@ aside{
 }*/
 
 #keysInputBox .keyBox{
-    padding: 8px 16px;
+    padding: 14px 20px;
     background-color: black;
     color: white;
     font-family: 'Manrope', sans-serif;
@@ -738,7 +745,7 @@ aside{
 }
 
 #keysInputBox .firstKey{
-    border-radius: 20px 10px 10px 10px;
+    border-radius: 30px 10px 10px 30px;
 }
 
 .active{
@@ -756,8 +763,8 @@ aside{
     width: 20px;
     height: 20px;
     position: absolute;
-    top: calc(50% - 37px);
-    left: calc(100% - 40px);
+    top: calc(50% - 10px);
+    left: calc(100% - 80px);
     padding: 0px!important;
     background-color: transparent!important;
     opacity: 0;
@@ -768,28 +775,35 @@ aside{
     bottom: 0px;
     left: 0px;
     background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 0px 0px 30px 30px;
-    height: 62px;
+    border-radius: 0px 0px 26px 26px;
+    height: 54px;
     width: 100%;
+    display: none;
 }
 
 #saveButton, #saveTerminalButton{
-    width: calc(100% - 56px);
-    height: fit-content;
-    padding: 12px 20px;
+    width: 52px;
+    height: 52px;
+    /* height: fit-content; */
+    /* padding: 12px 20px; */
     display: flex;
     align-items: center;
     border-radius: 50px;
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: rgb(255 255 255 / 10%);
     margin-top: 10px;
     position: absolute;
-    bottom: 8px;
-    right: 8px;
+    bottom: 3px;
+    right: 3px;
+    background-image: url(../icons/done.png);
+    background-position: center;
+    background-size: 50%;
+    background-repeat: no-repeat;
     justify-content: center;
 }
 
 #saveButton p{
     margin: 0px;
+    display: none;
     color: white;
 }
 
@@ -812,14 +826,14 @@ aside{
     height: fit-content;
     padding: 16px 22px;
     background-color: rgb(255 255 255 / 8%);
-    border: 1px solid rgb(255 255 255 / 30%);
+    border: 1px solid rgb(255 255 255 / 12%);
     color: white;
     font-family: 'Manrope', sans-serif;
     border-radius: 30px;
     display: flex;
     align-items: center;
-    margin-right: 14px;
-    margin-bottom: 14px;
+    margin-right: 6px;
+    margin-bottom: 8px;
     transform: scale(1);
     filter: blur(0px);
     transition: .3s;
@@ -940,11 +954,11 @@ aside{
     }
 
     60%{
-        transform: translate(-8px, 0px);
+        transform: translate(-4px, 0px);
     }
 
     80%{
-        transform: translate(8px, 0px);
+        transform: translate(4px, 0px);
     }
 
     100%{

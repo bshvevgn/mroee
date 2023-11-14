@@ -226,7 +226,7 @@ const asideButtons = document.querySelectorAll('.asideButton');
 const contentBoxes = document.querySelectorAll('.content');
 function selectContent(button) {
     var _a, _b;
-    update();
+    setTimeout(() => update(), 300);
     let buttonID = button.id;
     let id = buttonID.substring(0, buttonID.length - 6);
     if (id !== "iconsSet") {
@@ -560,7 +560,10 @@ class DraggableElement {
         document.body.appendChild(this.clone);
         this.clone.style.position = 'absolute';
         this.clone.style.zIndex = '1000';
-        this.clone.style.transition = "0s";
+        this.clone.style.transform = 'scale(1)';
+        this.clone.style.transition = ".2s";
+        setTimeout(() => this.clone.style.transform = 'scale(1.1)', 10);
+        setTimeout(() => this.clone.style.transition = "0s", 300);
         this.clone.id += 'Clone';
         this.element.style.transition = '0s';
         this.element.style.opacity = '0';
@@ -571,7 +574,6 @@ class DraggableElement {
                 preview.classList.add("dashedPreview");
             });
             this.moveAt(event.pageX, event.pageY);
-            //this.clone!.style.backgroundColor = "pink!important";
             //this.clone!.hidden = true;
             this.clone.style.display = "none";
             const elemBelow = document.elementFromPoint(event.clientX, event.clientY);
@@ -602,6 +604,7 @@ class DraggableElement {
             this.clone.style.transition = '.3s';
             this.element.style.transition = '.3s';
             if (!this.underDroppable) {
+                this.clone.style.transform = 'scale(1)';
                 this.clone.style.left = this.originX + 'px';
                 this.clone.style.top = this.originY + 'px';
             }
@@ -610,15 +613,20 @@ class DraggableElement {
                     this.underElement.getBoundingClientRect().left + (this.underElement.offsetWidth - this.clone.offsetWidth) / 2 + 'px';
                 this.clone.style.top =
                     this.underElement.getBoundingClientRect().top + (this.underElement.offsetHeight - this.clone.offsetHeight) / 2 + 'px';
+                //this.underElement!.style.backdropFilter = "blur(10px)";
                 setTimeout(() => {
                     this.clone.style.filter = 'blur(20px)';
+                    this.underElement.querySelectorAll(".previewIcon")[0].style.transition = ".2s";
+                    this.underElement.querySelectorAll(".previewIcon")[0].style.opacity = "0";
                     this.clone.style.transform = 'scale(.6)';
                     this.underElement.classList.remove('droppableActive');
                 }, 200);
+                setTimeout(() => { this.underElement.style.backdropFilter = "blur(0px)"; this.underElement.querySelectorAll(".previewIcon")[0].style.opacity = "1"; }, 1300);
+                setTimeout(() => this.underElement.querySelectorAll(".previewIcon")[0].style.transition = ".1s", 1500);
             }
             setTimeout(() => (this.clone.style.opacity = '0'), 300);
             setTimeout(() => (this.element.style.opacity = '1'), 200);
-            setTimeout(() => this.clone.remove(), 600);
+            setTimeout(() => { this.clone.remove(); }, 600);
         };
     }
     moveAt(pageX, pageY) {
