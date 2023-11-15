@@ -140,7 +140,7 @@ aside{
 }
 
 .asideButton{
-    background-color: #ffffff1c;
+    background-color: #ffffff00;
     margin-left: 4px;
     display: flex;
     flex-direction: row;
@@ -153,6 +153,7 @@ aside{
     flex-wrap: nowrap;
     width: fit-content;
     transition: .1s;
+    border: 1px solid rgb(255 255 255 / 20%);
     justify-content: center;
 }
 
