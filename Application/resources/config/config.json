@@ -2,7 +2,7 @@
   {
     "id": "button1",
     "icon": "copy",
-    "shortcut": "control;arrowup"
+    "shortcut": "meta;c"
   },
   {
     "id": "button2",
@@ -12,17 +12,21 @@
   {
     "id": "button3",
     "icon": "screenshot",
-    "shortcut": "control;arrowup"
+    "shortcut": "shift;meta;4"
   },
   {
     "id": "button4",
     "icon": "lock",
-    "shortcut": "alt;meta;a"
+    "shortcut": "control;meta;q"
   },
   {
     "id": "shortcutsList",
     "list": [
-      "CONTROL + ARROWUP"
+      "CONTROL + ARROWUP",
+      "SHIFT + META + 4",
+      "CONTROL + META + Q",
+      "META + C",
+      "META + V"
     ]
   }
 ]

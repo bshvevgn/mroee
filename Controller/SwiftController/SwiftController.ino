@@ -192,6 +192,7 @@ void setup() {
   
   preferences.begin("iconStorage", false);
   restoreState();
+  keyboard.begin();
   Serial.println("Ready");
 
   TCA9548A(2);
@@ -405,7 +406,7 @@ void parseString(String str) {
           if (keyStartIndex < keyEndIndex && keyEndIndex < valueStartIndex) {
               String key = input.substring(keyStartIndex, keyEndIndex);
               String value = input.substring(valueStartIndex);
-              //saveShortcutState(key.toInt(), value);
+              saveShortcutState(key.toInt(), value);
               collection.add(key.c_str(), value.c_str());
 
               Serial.print("Screen: ");
