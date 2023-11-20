@@ -9,8 +9,8 @@
 #include "GyverTimer.h"
 #include "icons.h"
 
+/* Confuguration section */
 #define DIM_ENABLED true
-
 #define DEVICE_INFO "mroee;S/N092300001"
 
 #define SCREEN_WIDTH 128
@@ -24,50 +24,17 @@ Adafruit_SSD1306 display2(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 Adafruit_SSD1306 display3(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 Adafruit_SSD1306 display4(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 BleKeyboard keyboard("mroee", "Higlight House", 100);
+
 Preferences preferences;
 
 GTimer connectionTimer(MS);
 GTimer brTimer(MS);
-
-//static NimBLEUUID bmeServiceUUID("91bad492-b950-4226-aa2b-4ede9fa42f59");
-//static NimBLEUUID stringUUID("cba1d466-344c-4be3-ab3f-189f80dd7518");
 
 #define ICON_HEIGHT 60
 #define ICON_WIDTH 60
 
 #define OR_ICON_HEIGHT 64
 #define OR_ICON_WIDTH 64
-
-/*bool connectToServer(BLEAddress pAddress) {
-   BLEClient* pClient = BLEDevice::createClient();
- 
-  // Connect to the remove BLE Server.
-  pClient->connect(pAddress);
-  Serial.println(" - Connected to server");
- 
-  // Obtain a reference to the service we are after in the remote BLE server.
-  BLERemoteService* pRemoteService = pClient->getService(bmeServiceUUID);
-  if (pRemoteService == nullptr) {
-    Serial.print("Failed to find our service UUID: ");
-    Serial.println(bmeServiceUUID.toString().c_str());
-    return (false);
-  }
- 
-  stringCharacteristic = pRemoteService->getCharacteristic(stringUUID);
-
-  if (stringeCharacteristic == nullptr) {
-    Serial.print("Failed to find our characteristic UUID");
-    return false;
-  }
-  Serial.println(" - Found our characteristics");
- 
-  stringCharacteristic->registerForNotify(stringNotifyCallback);
-  return true;
-}*/
-
-
-
-
 
 #define MAX_KEY_LENGTH 16
 #define MAX_VALUE_LENGTH 32
@@ -163,10 +130,25 @@ uint8_t loadIconState(uint32_t screenNumber) {
   return iconNumber;
 }
 
-void restoreIconStates() {
+void saveShortcutState(uint32_t screenNumber, String shortcut) {
+  preferences.begin("iconStorage", false);
+  preferences.putString((String("screenSC") + String(screenNumber)).c_str(), shortcut);
+  preferences.end();
+}
+
+String loadShortcutState(uint32_t screenNumber) {
+  preferences.begin("iconStorage", true);
+  String shortcut = preferences.getString((String("screenSC") + String(screenNumber)).c_str());
+  preferences.end();
+  return shortcut;
+}
+
+void restoreState() {
   for (uint32_t screenNumber = 1; screenNumber <= 4; ++screenNumber) {
     uint32_t iconNumber = loadIconState(screenNumber);
+    String shortcut = loadShortcutState(screenNumber);
     changeIcon(screenNumber, iconNumber);
+    collection.add(String(screenNumber).c_str(), shortcut.c_str());
   }
 }
 
@@ -209,7 +191,7 @@ void setup() {
   display4.drawBitmap((display4.width() - ICON_WIDTH) / 2, (display4.height() - ICON_HEIGHT) / 2, lock, ICON_WIDTH, ICON_HEIGHT, 1);
   
   preferences.begin("iconStorage", false);
-  restoreIconStates();
+  restoreState();
   Serial.println("Ready");
 
   TCA9548A(2);
@@ -416,8 +398,6 @@ void parseString(String str) {
     } else {
       String input = str;
       if (input.startsWith("s") && input.indexOf("sc") != -1) {
-          Serial.print("QQQ ");
-          Serial.println(input);
           int keyStartIndex = input.indexOf("s") + 1;
           int keyEndIndex = input.indexOf("sc");
           int valueStartIndex = input.indexOf("sc") + 2;
@@ -425,7 +405,7 @@ void parseString(String str) {
           if (keyStartIndex < keyEndIndex && keyEndIndex < valueStartIndex) {
               String key = input.substring(keyStartIndex, keyEndIndex);
               String value = input.substring(valueStartIndex);
-
+              //saveShortcutState(key.toInt(), value);
               collection.add(key.c_str(), value.c_str());
 
               Serial.print("Screen: ");
