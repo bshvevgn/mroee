@@ -1,0 +1,28 @@
+[
+  {
+    "id": "button1",
+    "icon": "copy",
+    "shortcut": "control;arrowup"
+  },
+  {
+    "id": "button2",
+    "icon": "paste",
+    "shortcut": "meta;v"
+  },
+  {
+    "id": "button3",
+    "icon": "screenshot",
+    "shortcut": "control;arrowup"
+  },
+  {
+    "id": "button4",
+    "icon": "lock",
+    "shortcut": "alt;meta;a"
+  },
+  {
+    "id": "shortcutsList",
+    "list": [
+      "CONTROL + ARROWUP"
+    ]
+  }
+]

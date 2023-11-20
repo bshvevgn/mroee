@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,6 +31,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 setTimeout(() => { var _a; return (_a = document.getElementById('preloader')) === null || _a === void 0 ? void 0 : _a.classList.add('hiddenPreloader'); }, 2000);
 setTimeout(() => document.getElementById('logoAnimation').style.display = "none", 2300);
 const { SerialPort } = require('serialport');
@@ -26,7 +50,7 @@ let port = new SerialPort({
 const portNames = ['/dev/cu.usbserial-0001', '/dev/cu.usbserial-0002', 'COM1', 'COM2', 'COM3', 'COM4'];
 let accumulatedData = '';
 function parseData(data, portName) {
-    const regex = /^SwiftController;S\/N(\d+)/;
+    const regex = /^mroee;S\/N(\d+)/;
     const match = data.match(regex);
     if (match) {
         receivedData = true;
@@ -76,7 +100,7 @@ function readData() {
     });
 }
 function main() {
-    var _a, _b;
+    var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function* () {
         //console.log("Port opened: " + globalPort.isOpen + " Connected: " + isConnected);
         if (isConnected) {
@@ -87,13 +111,13 @@ function main() {
             connectionWindowOpened = false;
         }
         else {
-            /*if(!connectionWindowOpened){
-              showModalWindow('connection');
-              document.getElementById("disconnectedMessage")?.classList.remove("hidden");
-              document.getElementById("connectionIcon")!.style.backgroundImage = "url(resources/icons/disconnected.png)";
-              document.getElementById("preview")?.classList.add("blurredPreview");
-              connectionWindowOpened = true;
-            }*/
+            if (!connectionWindowOpened) {
+                showModalWindow('connection');
+                (_c = document.getElementById("disconnectedMessage")) === null || _c === void 0 ? void 0 : _c.classList.remove("hidden");
+                document.getElementById("connectionIcon").style.backgroundImage = "url(resources/icons/disconnected.png)";
+                (_d = document.getElementById("preview")) === null || _d === void 0 ? void 0 : _d.classList.add("blurredPreview");
+                connectionWindowOpened = true;
+            }
         }
         if (!isConnected) {
             for (const portName of portNames) {
@@ -101,7 +125,7 @@ function main() {
                     yield connectTo(portName);
                 }
                 catch (err) {
-                    console.log(err);
+                    //console.log(err);
                 }
             }
         }
@@ -111,7 +135,7 @@ function main() {
                     yield readData();
                 }
                 catch (err) {
-                    console.log(err);
+                    //console.log(err);
                 }
             }
             else {
@@ -129,56 +153,136 @@ globalPort.on('error', function () {
     isConnected = false;
 });
 setInterval(() => main(), 1500);
+const fs = __importStar(require("fs"));
+class JsonEditor {
+    constructor(filePath) {
+        this.filePath = filePath;
+        this.jsonData = this.loadJsonData();
+    }
+    loadJsonData() {
+        try {
+            const data = fs.readFileSync(this.filePath, 'utf8');
+            return JSON.parse(data);
+        }
+        catch (error) {
+            // Если файл не существует или возникает ошибка при чтении, возвращаем пустой массив
+            return [];
+        }
+    }
+    saveJsonData() {
+        const jsonDataString = JSON.stringify(this.jsonData, null, 2);
+        fs.writeFileSync(this.filePath, jsonDataString, 'utf8');
+    }
+    findObjectById(id) {
+        return this.jsonData.find(obj => obj.id === id);
+    }
+    editAttributeById(id, attributeName, newValue) {
+        const obj = this.findObjectById(id);
+        if (obj) {
+            obj[attributeName] = newValue;
+            this.saveJsonData();
+        }
+        else {
+            console.info(`Object with id ${id} not found.`);
+        }
+    }
+    createObject(id, icon, shortcut) {
+        const existingObj = this.findObjectById(id);
+        if (existingObj) {
+            console.info(`Object with id ${id} already exists.`);
+        }
+        else {
+            const newObj = { id, icon, shortcut };
+            this.jsonData.push(newObj);
+            this.saveJsonData();
+        }
+    }
+    createShortcutsList() {
+        const existingObj = this.findObjectById("shortcutsList");
+        if (existingObj) {
+            console.info(`Object already exists.`);
+        }
+        else {
+            let id = "shortcutsList";
+            let list = [];
+            const newObj = { id, list };
+            this.jsonData.push(newObj);
+            this.saveJsonData();
+        }
+    }
+    addShortcut(shortcut) {
+        const obj = this.findObjectById("shortcutsList");
+        if (obj && obj.list) {
+            obj.list.push(shortcut);
+            this.saveJsonData();
+        }
+        else {
+            console.info(`Object with "shortcuts" property not found.`);
+        }
+    }
+    removeShortcut(shortcut) {
+        const obj = this.findObjectById("shortcutsList");
+        if (obj && obj.list) {
+            var index = obj.list.indexOf(shortcut);
+            let newList = obj.list;
+            newList.splice(index, 1);
+            if (index !== -1) {
+                obj.list = newList;
+            }
+            this.saveJsonData();
+        }
+        else {
+            console.info(`Object with "shortcuts" property not found.`);
+        }
+    }
+    getShortcuts() {
+        const obj = this.findObjectById("shortcutsList");
+        console.log(obj === null || obj === void 0 ? void 0 : obj.id);
+        if (obj && obj.list) {
+            return obj.list;
+        }
+        else {
+            console.error(`Object with "shortcuts" property not found.`);
+            return undefined;
+        }
+    }
+}
+const jsonFilePath = 'resources/config/config.json';
+const editor = new JsonEditor(jsonFilePath);
+function importShortcuts() {
+    let shortcuts = editor.getShortcuts();
+    shortcuts.forEach(shortcut => {
+        addCombination(shortcut);
+    });
+    update();
+}
+//editor.editAttributeById('someId', 'icon', 'newIcon');
 const iconNames = ['copy', 'paste', 'mute', 'volumeup', 'volumedown', 'pause', 'play', 'backward', 'forward', 'screenshot', 'search', 'moon', 'lock'];
 const names = ['Копировать', 'Вставить', 'Без звука', 'Громкость +', 'Громкость -', 'Пауза', 'Продолжить', 'Назад', 'Вперёд', 'Снимок экрана', 'Поиск', 'Не беспокоить', 'Заблокировать'];
-/*addEventListener("load", (event) => {
-  let iconsSet: string = `
-          <div class="column iconsColumn">
-            ${iconNames.map((name, index) => `
-                <div class="listElement iconElement button">
-                    <div class="icon" style="background-image: url(resources/icons/${name}.png);"></div>
-                    <p>${names[index]}</p>
-                </div>
-            `).join('')}
-          </div>`;
-  document.getElementById("iconsSectionInner")!.innerHTML = iconsSet;
-});*/
+addEventListener("load", (event) => {
+    editor.createObject('button1', 'copy', 'meta;c');
+    editor.createObject('button2', 'paste', 'meta;v');
+    editor.createObject('button3', 'moon', 'meta;control;d');
+    editor.createObject('button4', 'lock', 'meta;shift;q');
+    editor.createShortcutsList();
+    importShortcuts();
+    for (let i = 1; i < 5; i++) {
+        const iconBox = document.getElementById("iconBox" + i).querySelectorAll(".previewIcon")[0];
+        const iconPath = `url(resources/icons/${editor.findObjectById("button" + i)["icon"]}.png)`;
+        iconBox.style.backgroundImage = iconPath;
+        //alert(iconBox.style.backgroundImage);
+    }
+    //alert(document.getElementById("iconBox1")!.querySelectorAll<HTMLElement>(".previewIcon")[0].style.backgroundImage);
+    //alert(document.getElementById("iconBox1")!.querySelectorAll<HTMLElement>(".previewIcon")[0].classList);
+});
+let popups = [];
 class SettingsPopup {
     constructor(element) {
         this.menuOpened = false;
         this.numberOfScreen = "";
+        this.menu = document.createElement("div");
         this.element = element;
         this.numberOfScreen = this.element.id.substring(7, 8);
-        this.element.addEventListener('click', () => this.operateMenu());
-    }
-    checkMenu() {
-        if (this.menuOpened) {
-            this.closeMenu();
-        }
-    }
-    operateMenu() {
-        if (this.menuOpened) {
-            this.closeMenu();
-        }
-        else {
-            this.openMenu();
-        }
-    }
-    closeMenu() {
-        const menu = document.querySelector("#menu" + this.element.id.substring(7, 8));
-        this.element.classList.remove('activePreview');
-        menu.classList.add('hidden');
-        setTimeout(() => menu.remove(), 200);
-        this.menuOpened = false;
-    }
-    openMenu() {
-        var _a, _b;
-        this.menuOpened = true;
-        (_a = this.element) === null || _a === void 0 ? void 0 : _a.classList.add('activePreview');
-        let menu = document.createElement("div");
-        menu.classList.add("iconMenu");
-        menu.classList.add("hidden");
-        menu.id = "menu" + this.element.id.substring(7, 8);
         const menuHTML = `
           <div class="categories">
             <div class="category iconsCategory"><p>Значки</p></div>
@@ -196,23 +300,63 @@ class SettingsPopup {
 
           </div>
     `;
-        menu.innerHTML += menuHTML;
+        this.menu.innerHTML += menuHTML;
+        popups.push(this);
+        this.element.addEventListener('click', () => this.operateMenu());
+    }
+    checkMenu() {
+        if (this.menuOpened) {
+            this.closeMenu();
+        }
+    }
+    operateMenu() {
+        if (this.menuOpened) {
+            this.closeMenu();
+        }
+        else {
+            popups.forEach(popup => {
+                if (popup != this) {
+                    popup.closeMenu();
+                }
+            });
+            console.log(this.menuOpened);
+            this.openMenu();
+            console.log(this.menuOpened);
+        }
+    }
+    closeMenu() {
+        console.log("zakrylos");
+        const menu = this.menu;
+        this.element.classList.remove('activePreview');
+        menu.classList.add('hidden');
+        setTimeout(() => menu.remove(), 200);
+        this.menuOpened = false;
+    }
+    openMenu() {
+        var _a, _b;
+        console.log("otkrylos");
+        this.menuOpened = true;
+        (_a = this.element) === null || _a === void 0 ? void 0 : _a.classList.add('activePreview');
+        this.menu.classList.add("iconMenu");
+        this.menu.classList.add("hidden");
+        this.menu.id = "menu" + this.element.id.substring(7, 8);
         const iconButtons = document.querySelectorAll(".iconElement");
         iconButtons.forEach(button => {
             button.addEventListener('click', () => this.operateMenu());
         });
-        menu.style.position = "absolute";
-        menu.style.zIndex = "1000";
-        menu.style.left = this.element.getBoundingClientRect().left + "px";
-        menu.style.top = this.element.getBoundingClientRect().top + "px";
-        (_b = document.querySelector("body")) === null || _b === void 0 ? void 0 : _b.appendChild(menu);
-        setTimeout(() => menu.classList.remove('hidden'), 10);
+        this.menu.style.position = "absolute";
+        this.menu.style.zIndex = "1000";
+        this.menu.style.left = this.element.getBoundingClientRect().left + "px";
+        this.menu.style.top = this.element.getBoundingClientRect().top + "px";
+        (_b = document.querySelector("body")) === null || _b === void 0 ? void 0 : _b.appendChild(this.menu);
+        setTimeout(() => this.menu.classList.remove('hidden'), 10);
     }
 }
 function handleIconClick(numberOfScreen, index) {
     const innerIcon = document.querySelectorAll(".previewIcon")[numberOfScreen - 1];
     const iconName = iconNames[index];
     console.log("s" + numberOfScreen + "i" + index);
+    editor.editAttributeById(("button" + numberOfScreen), "icon", iconNames[index]);
     innerIcon.style.backgroundImage = `url(resources/icons/${iconName}.png)`;
     innerIcon.style.animation = "bounce .2s ease-in-out running";
     globalPort.write("s" + numberOfScreen + "i" + index);
@@ -298,6 +442,19 @@ function clearCombination() {
     clearButton.style.opacity = "0";
 }
 const emptyCombinationsHint = document.getElementById('emptyCombinationsHint');
+function addCombination(text) {
+    const combinationDiv = document.createElement("div");
+    const combinationTextBlock = document.createElement("p");
+    combinationDiv.classList.add("combination");
+    combinationDiv.classList.add("button");
+    combinationTextBlock.innerHTML = text;
+    const combinationRemoveButton = document.createElement("div");
+    combinationRemoveButton.classList.add("combinationRemoveButton");
+    combinationDiv.appendChild(combinationRemoveButton);
+    combinationDiv.appendChild(combinationTextBlock);
+    combinationsBox.appendChild(combinationDiv);
+    combinationDiv.addEventListener("click", () => removeCombination(combinationDiv));
+}
 function saveCombination() {
     const divs = keysInputBox.querySelectorAll("div");
     const innerTextArray = [];
@@ -315,6 +472,7 @@ function saveCombination() {
         return;
     }
     combinations.push(combinationText);
+    editor.addShortcut(combinationText);
     emptyCombinationsHint.style.display = "none";
     skeletons.forEach(element => {
         element.style.display = "none";
@@ -375,6 +533,7 @@ function keysListener() {
 }
 function removeCombination(box) {
     box.classList.add("hiddenCombination");
+    editor.removeShortcut(box.querySelectorAll("p")[0].innerText);
     setTimeout(() => { box.remove(); update(); }, 200);
 }
 const terminalInputBox = document.getElementById("terminalInputBox");
@@ -609,6 +768,11 @@ class DraggableElement {
                 this.clone.style.top = this.originY + 'px';
             }
             else {
+                const numberOfScreen = this.underElement.id.substring(7, 8);
+                const shortcut = this.textToShortcut(this.clone.querySelectorAll("p")[0].innerText);
+                globalPort.write("s" + numberOfScreen + "sc" + shortcut);
+                console.log("s" + numberOfScreen + "sc" + shortcut);
+                editor.editAttributeById(("button" + numberOfScreen), "shortcut", shortcut);
                 this.clone.style.left =
                     this.underElement.getBoundingClientRect().left + (this.underElement.offsetWidth - this.clone.offsetWidth) / 2 + 'px';
                 this.clone.style.top =
@@ -641,5 +805,8 @@ class DraggableElement {
     leaveDroppable(elem) {
         elem.classList.remove('droppableActive');
         this.underDroppable = false;
+    }
+    textToShortcut(text) {
+        return text.replace(/(\s)\+(\s)/g, ';').toLowerCase();
     }
 }

@@ -472,7 +472,7 @@ aside{
 }
 
 .previewIconBox{
-    border: 4px dashed rgba(255, 255, 255, 0.0);
+    border: 4px solid rgba(255, 255, 255, 0.0);
     border-radius: 20px;
     height: 129px;
     width: 129px;
@@ -482,14 +482,16 @@ aside{
 
 .previewIconBox.droppableActive {
     background: rgba(255, 255, 255, 0.2);
-    border: 4px dashed rgba(255, 255, 255, 0.4);
+    border: 4px solid rgba(255, 255, 255, 0.4);
+    animation: borderPulse 2s infinite;
 }
 
 .activePreview {
     transition: 200ms 0ms;
     /*transform: translate(2px, 2px);
     border: 4px solid rgba(255, 255, 255, 0.4);*/
-    border: 4px dashed rgba(255, 255, 255, 0.4);
+    border: 4px solid rgba(255, 255, 255, 0.4);
+    animation: borderPulse 2s infinite;
 }
 
 .activePreview:hover{
@@ -978,5 +980,20 @@ aside{
 
     100%{
         transform: translate(calc(-50% - 0px), calc(-50% - 4px)) scale(1);
+    }
+}
+
+
+@keyframes borderPulse {
+    0%{
+        border: 4px solid rgba(255, 255, 255, 0.4);
+    }
+
+    50%{
+        border: 4px solid rgba(255, 255, 255, 0.7);
+    }
+
+    100%{
+        border: 4px solid rgba(255, 255, 255, 0.4);
     }
 }

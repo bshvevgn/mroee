@@ -21,7 +21,7 @@ const portNames = ['/dev/cu.usbserial-0001', '/dev/cu.usbserial-0002', 'COM1', '
 let accumulatedData: string = ''
 
 function parseData(data: string, portName: string) {
-  const regex = /^SwiftController;S\/N(\d+)/;
+  const regex = /^mroee;S\/N(\d+)/;
   const match = data.match(regex);
   if (match) {
     receivedData = true;
@@ -85,13 +85,13 @@ async function main() {
     document.getElementById("preview")?.classList.remove("blurredPreview");
     connectionWindowOpened = false;
   } else {
-    /*if(!connectionWindowOpened){
+    if(!connectionWindowOpened){
       showModalWindow('connection');
       document.getElementById("disconnectedMessage")?.classList.remove("hidden");
       document.getElementById("connectionIcon")!.style.backgroundImage = "url(resources/icons/disconnected.png)";
       document.getElementById("preview")?.classList.add("blurredPreview");
       connectionWindowOpened = true;
-    }*/
+    }
   }
 
   if (!isConnected) {
@@ -99,7 +99,7 @@ async function main() {
       try {
         await connectTo(portName);
       } catch (err) {
-        console.log(err);
+        //console.log(err);
       }
     }
   } else {
@@ -107,7 +107,7 @@ async function main() {
       try {
         await readData();
       } catch (err) {
-        console.log(err);
+        //console.log(err);
       }
     } else {
       //await readData();
@@ -127,65 +127,171 @@ globalPort.on('error', function () {
 
 setInterval(() => main(), 1500);
 
+
+
+import * as fs from 'fs';
+
+interface JsonObject {
+  id: string;
+  icon?: string;
+  shortcut?: string;
+  list?: string[];
+  [key: string]: any;
+}
+
+class JsonEditor {
+  private jsonData: JsonObject[];
+
+  constructor(private filePath: string) {
+    this.jsonData = this.loadJsonData();
+  }
+
+  private loadJsonData(): JsonObject[] {
+    try {
+      const data = fs.readFileSync(this.filePath, 'utf8');
+      return JSON.parse(data);
+    } catch (error) {
+      // Если файл не существует или возникает ошибка при чтении, возвращаем пустой массив
+      return [];
+    }
+  }
+
+  private saveJsonData(): void {
+    const jsonDataString = JSON.stringify(this.jsonData, null, 2);
+    fs.writeFileSync(this.filePath, jsonDataString, 'utf8');
+  }
+
+  findObjectById(id: string): JsonObject | undefined {
+    return this.jsonData.find(obj => obj.id === id);
+  }
+
+  editAttributeById(id: string, attributeName: string, newValue: any): void {
+    const obj = this.findObjectById(id);
+
+    if (obj) {
+      obj[attributeName] = newValue;
+      this.saveJsonData();
+    } else {
+      console.info(`Object with id ${id} not found.`);
+    }
+  }
+
+  createObject(id: string, icon: string, shortcut: string): void {
+    const existingObj = this.findObjectById(id);
+
+    if (existingObj) {
+      console.info(`Object with id ${id} already exists.`);
+    } else {
+      const newObj: JsonObject = { id, icon, shortcut };
+      this.jsonData.push(newObj);
+      this.saveJsonData();
+    }
+  }
+
+  createShortcutsList() {
+    const existingObj = this.findObjectById("shortcutsList");
+
+    if (existingObj) {
+      console.info(`Object already exists.`);
+    } else {
+      let id = "shortcutsList";
+      let list: string[] = [];
+      const newObj: JsonObject = { id, list };
+      this.jsonData.push(newObj);
+      this.saveJsonData();
+    }
+  }
+
+  addShortcut(shortcut: string) {
+    const obj = this.findObjectById("shortcutsList");
+
+    if (obj && obj.list) {
+      obj.list.push(shortcut);
+      this.saveJsonData();
+    } else {
+      console.info(`Object with "shortcuts" property not found.`);
+    }
+  }
+
+  removeShortcut(shortcut: string) {
+    const obj = this.findObjectById("shortcutsList");
+
+    if (obj && obj.list) {
+      var index = obj.list.indexOf(shortcut);
+
+      let newList = obj.list;
+      newList.splice(index, 1);
+
+      if (index !== -1) {
+        obj.list = newList;
+      }
+
+      this.saveJsonData();
+    } else {
+      console.info(`Object with "shortcuts" property not found.`);
+    }
+  }
+
+  getShortcuts(): string[] | undefined {
+    const obj = this.findObjectById("shortcutsList");
+    console.log(obj?.id);
+    if (obj && obj.list) {
+      return obj.list;
+    } else {
+      console.error(`Object with "shortcuts" property not found.`);
+      return undefined;
+    }
+  }
+}
+
+const jsonFilePath = 'resources/config/config.json';
+const editor = new JsonEditor(jsonFilePath);
+
+function importShortcuts() {
+  let shortcuts = editor.getShortcuts();
+  shortcuts!.forEach(shortcut => {
+    addCombination(shortcut);
+  });
+  update();
+}
+
+//editor.editAttributeById('someId', 'icon', 'newIcon');
+
 const iconNames = ['copy', 'paste', 'mute', 'volumeup', 'volumedown', 'pause', 'play', 'backward', 'forward', 'screenshot', 'search', 'moon', 'lock'];
 const names = ['Копировать', 'Вставить', 'Без звука', 'Громкость +', 'Громкость -', 'Пауза', 'Продолжить', 'Назад', 'Вперёд', 'Снимок экрана', 'Поиск', 'Не беспокоить', 'Заблокировать'];
 
 
-/*addEventListener("load", (event) => {
-  let iconsSet: string = `
-          <div class="column iconsColumn">
-            ${iconNames.map((name, index) => `
-                <div class="listElement iconElement button">
-                    <div class="icon" style="background-image: url(resources/icons/${name}.png);"></div>
-                    <p>${names[index]}</p>
-                </div>
-            `).join('')}
-          </div>`;
-  document.getElementById("iconsSectionInner")!.innerHTML = iconsSet;
-});*/
+addEventListener("load", (event) => {
+  editor.createObject('button1', 'copy', 'meta;c');
+  editor.createObject('button2', 'paste', 'meta;v');
+  editor.createObject('button3', 'moon', 'meta;control;d');
+  editor.createObject('button4', 'lock', 'meta;shift;q');
+  editor.createShortcutsList();
+  importShortcuts();
+
+  for (let i = 1; i < 5; i++) {
+    const iconBox = document.getElementById("iconBox" + i)!.querySelectorAll<HTMLElement>(".previewIcon")[0]!;
+    const iconPath = `url(resources/icons/${editor.findObjectById("button" + i)!["icon"]}.png)`;
+
+    iconBox.style.backgroundImage = iconPath;
+    //alert(iconBox.style.backgroundImage);
+  }
+
+  //alert(document.getElementById("iconBox1")!.querySelectorAll<HTMLElement>(".previewIcon")[0].style.backgroundImage);
+  //alert(document.getElementById("iconBox1")!.querySelectorAll<HTMLElement>(".previewIcon")[0].classList);
+});
+
+let popups: Array<SettingsPopup> = [];
 
 class SettingsPopup {
   private element: HTMLElement;
   private menuOpened: boolean = false;
   private numberOfScreen = "";
+  private menu: HTMLDivElement = document.createElement("div");
 
   constructor(element: HTMLElement) {
     this.element = element;
     this.numberOfScreen = this.element.id.substring(7, 8);
-    this.element.addEventListener('click', () => this.operateMenu());
-  }
-
-  private checkMenu() {
-    if (this.menuOpened) {
-      this.closeMenu();
-    }
-  }
-
-  private operateMenu() {
-    if (this.menuOpened) {
-      this.closeMenu();
-    } else {
-      this.openMenu();
-    }
-  }
-
-  private closeMenu() {
-    const menu = document.querySelector<HTMLElement>("#menu" + this.element.id.substring(7, 8));
-    this.element.classList.remove('activePreview');
-    menu!.classList.add('hidden');
-    setTimeout(() => menu!.remove(), 200);
-    this.menuOpened = false;
-  }
-
-  private openMenu() {
-    this.menuOpened = true;
-    this.element?.classList.add('activePreview');
-
-    let menu: HTMLDivElement = document.createElement("div");
-    menu.classList.add("iconMenu");
-    menu.classList.add("hidden");
-    menu.id = "menu" + this.element.id.substring(7, 8);
-
     const menuHTML = `
           <div class="categories">
             <div class="category iconsCategory"><p>Значки</p></div>
@@ -203,20 +309,61 @@ class SettingsPopup {
 
           </div>
     `;
+    this.menu.innerHTML += menuHTML;
 
-    menu.innerHTML += menuHTML;
+    popups.push(this);
+    this.element.addEventListener('click', () => this.operateMenu());
+  }
+
+  private checkMenu() {
+    if (this.menuOpened) {
+      this.closeMenu();
+    }
+  }
+
+  private operateMenu() {
+    if (this.menuOpened) {
+      this.closeMenu();
+    } else {
+      popups.forEach(popup => {
+        if (popup != this) {
+          popup.closeMenu();
+        }
+      });
+      console.log(this.menuOpened)
+      this.openMenu();
+      console.log(this.menuOpened)
+    }
+  }
+
+  private closeMenu() {
+    console.log("zakrylos")
+    const menu = this.menu;
+    this.element.classList.remove('activePreview');
+    menu!.classList.add('hidden');
+    setTimeout(() => menu!.remove(), 200);
+    this.menuOpened = false;
+  }
+
+  private openMenu() {
+    console.log("otkrylos")
+    this.menuOpened = true;
+    this.element?.classList.add('activePreview');
+    this.menu.classList.add("iconMenu");
+    this.menu.classList.add("hidden");
+    this.menu.id = "menu" + this.element.id.substring(7, 8);
 
     const iconButtons = document.querySelectorAll<HTMLTableElement>(".iconElement");
     iconButtons.forEach(button => {
       button.addEventListener('click', () => this.operateMenu());
     });
 
-    menu.style.position = "absolute";
-    menu.style.zIndex = "1000";
-    menu.style.left = this.element.getBoundingClientRect().left + "px";
-    menu.style.top = this.element.getBoundingClientRect().top + "px";
-    document.querySelector("body")?.appendChild(menu);
-    setTimeout(() => menu.classList.remove('hidden'), 10);
+    this.menu.style.position = "absolute";
+    this.menu.style.zIndex = "1000";
+    this.menu.style.left = this.element.getBoundingClientRect().left + "px";
+    this.menu.style.top = this.element.getBoundingClientRect().top + "px";
+    document.querySelector("body")?.appendChild(this.menu);
+    setTimeout(() => this.menu.classList.remove('hidden'), 10);
   }
 
 }
@@ -224,7 +371,10 @@ class SettingsPopup {
 function handleIconClick(numberOfScreen: number, index: number) {
   const innerIcon = document.querySelectorAll<HTMLTableElement>(".previewIcon")[numberOfScreen - 1];
   const iconName = iconNames[index];
+
   console.log("s" + numberOfScreen + "i" + index);
+  editor.editAttributeById(("button" + numberOfScreen), "icon", iconNames[index])
+
   innerIcon.style.backgroundImage = `url(resources/icons/${iconName}.png)`;
   innerIcon.style.animation = "bounce .2s ease-in-out running";
   globalPort.write("s" + numberOfScreen + "i" + index);
@@ -332,6 +482,22 @@ function clearCombination() {
 
 const emptyCombinationsHint = document.getElementById('emptyCombinationsHint');
 
+function addCombination(text: string) {
+  const combinationDiv = document.createElement("div");
+  const combinationTextBlock = document.createElement("p");
+  combinationDiv.classList.add("combination");
+  combinationDiv.classList.add("button");
+  combinationTextBlock.innerHTML = text;
+
+  const combinationRemoveButton = document.createElement("div");
+  combinationRemoveButton.classList.add("combinationRemoveButton");
+
+  combinationDiv.appendChild(combinationRemoveButton);
+  combinationDiv.appendChild(combinationTextBlock);
+  combinationsBox.appendChild(combinationDiv);
+  combinationDiv.addEventListener("click", () => removeCombination(combinationDiv));
+}
+
 function saveCombination() {
   const divs = keysInputBox.querySelectorAll("div");
   const innerTextArray: string[] = [];
@@ -353,6 +519,7 @@ function saveCombination() {
   }
 
   combinations.push(combinationText);
+  editor.addShortcut(combinationText);
 
   emptyCombinationsHint!.style.display = "none";
   skeletons.forEach(element => {
@@ -424,6 +591,7 @@ function keysListener() {
 
 function removeCombination(box: HTMLElement) {
   box.classList.add("hiddenCombination");
+  editor.removeShortcut(box.querySelectorAll<HTMLElement>("p")[0].innerText);
   setTimeout(() => { box.remove(); update() }, 200);
 }
 
@@ -645,8 +813,8 @@ class DraggableElement {
     this.originX = this.element.getBoundingClientRect().left;
     this.originY = this.element.getBoundingClientRect().top;
 
-    const shiftX = event.clientX - this.element.getBoundingClientRect().left ;
-    const shiftY = event.clientY - this.element.getBoundingClientRect().top ;
+    const shiftX = event.clientX - this.element.getBoundingClientRect().left;
+    const shiftY = event.clientY - this.element.getBoundingClientRect().top;
 
     //event.clientX - ball!.getBoundingClientRect().left - 42;
 
@@ -713,10 +881,16 @@ class DraggableElement {
         this.clone!.style.left = this.originX + 'px';
         this.clone!.style.top = this.originY + 'px';
       } else {
+        const numberOfScreen = this.underElement!.id.substring(7, 8);
+        const shortcut = this.textToShortcut(this.clone!.querySelectorAll("p")[0].innerText)
+        globalPort.write("s" + numberOfScreen + "sc" + shortcut);
+        console.log("s" + numberOfScreen + "sc" + shortcut);
+        editor.editAttributeById(("button" + numberOfScreen), "shortcut", shortcut);
+
         this.clone!.style.left =
-        this.underElement!.getBoundingClientRect().left + (this.underElement!.offsetWidth - this.clone!.offsetWidth) / 2 + 'px';
+          this.underElement!.getBoundingClientRect().left + (this.underElement!.offsetWidth - this.clone!.offsetWidth) / 2 + 'px';
         this.clone!.style.top =
-        this.underElement!.getBoundingClientRect().top + (this.underElement!.offsetHeight - this.clone!.offsetHeight) / 2 + 'px';
+          this.underElement!.getBoundingClientRect().top + (this.underElement!.offsetHeight - this.clone!.offsetHeight) / 2 + 'px';
         //this.underElement!.style.backdropFilter = "blur(10px)";
         setTimeout(() => {
           this.clone!.style.filter = 'blur(20px)';
@@ -725,13 +899,13 @@ class DraggableElement {
           this.clone!.style.transform = 'scale(.6)';
           this.underElement!.classList.remove('droppableActive');
         }, 200);
-        
-        setTimeout(() => {this.underElement!.style.backdropFilter = "blur(0px)"; this.underElement!.querySelectorAll<HTMLElement>(".previewIcon")[0]!.style.opacity = "1";}, 1300);
+
+        setTimeout(() => { this.underElement!.style.backdropFilter = "blur(0px)"; this.underElement!.querySelectorAll<HTMLElement>(".previewIcon")[0]!.style.opacity = "1"; }, 1300);
         setTimeout(() => this.underElement!.querySelectorAll<HTMLElement>(".previewIcon")[0]!.style.transition = ".1s", 1500);
       }
       setTimeout(() => (this.clone!.style.opacity = '0'), 300);
       setTimeout(() => (this.element.style.opacity = '1'), 200);
-      setTimeout(() => {this.clone!.remove();}, 600);
+      setTimeout(() => { this.clone!.remove(); }, 600);
     };
   }
 
@@ -751,7 +925,11 @@ class DraggableElement {
     this.underDroppable = false;
   }
 
-  
+  private textToShortcut(text: string): string {
+    return text.replace(/(\s)\+(\s)/g, ';').toLowerCase();
+  }
+
+
 }
 
 
