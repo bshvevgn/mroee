@@ -176,6 +176,9 @@ void setup() {
   display1.setRotation(2);
   display1.clearDisplay();
 
+  drawIconS1(logo);
+  delay(1500);
+
   TCA9548A(5);
   display2.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
   display2.setRotation(2);

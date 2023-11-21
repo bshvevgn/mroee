@@ -15,14 +15,13 @@ app.on('activate', function () {
 
 function createWindows (): void {
     mainWindow = new BrowserWindow({
-        width: 1400, height: 800,
+        title: "mroee /connect", width: 1400, height: 800, minWidth: 1200, minHeight: 780,
         webPreferences: {
             preload: __dirname + "/preload.js",
             nodeIntegration: true,
             contextIsolation: false
         },
         show: false,
-        title: 'mroee /connect',
         titleBarStyle: 'hidden',
     });
 

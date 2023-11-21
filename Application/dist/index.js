@@ -14,14 +14,13 @@ electron_1.app.on('activate', function () {
 });
 function createWindows() {
     mainWindow = new electron_1.BrowserWindow({
-        width: 1400, height: 800,
+        title: "mroee /connect", width: 1400, height: 800, minWidth: 1200, minHeight: 780,
         webPreferences: {
             preload: __dirname + "/preload.js",
             nodeIntegration: true,
             contextIsolation: false
         },
         show: false,
-        title: 'mroee /connect',
         titleBarStyle: 'hidden',
     });
     mainWindow.loadFile("./index.html");
