@@ -47,7 +47,7 @@ let port = new SerialPort({
     path: 'COM1',
     baudRate: 115200
 });
-const portNames = ['/dev/cu.usbserial-0001', '/dev/cu.usbserial-0002', 'COM1', 'COM2', 'COM3', 'COM4'];
+const portNames = ['/dev/cu.usbserial-0001', '/dev/cu.usbserial-0002', '/dev/cu.usbserial-210', '/dev/cu.wchusbserial210', 'COM1', 'COM2', 'COM3', 'COM4'];
 let accumulatedData = '';
 function parseData(data, portName) {
     const regex = /^mroee;S\/N(\d+)/;
@@ -100,7 +100,7 @@ function readData() {
     });
 }
 function main() {
-    var _a, _b, _c, _d;
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         //console.log("Port opened: " + globalPort.isOpen + " Connected: " + isConnected);
         if (isConnected) {
@@ -112,11 +112,11 @@ function main() {
         }
         else {
             if (!connectionWindowOpened) {
-                showModalWindow('connection');
-                (_c = document.getElementById("disconnectedMessage")) === null || _c === void 0 ? void 0 : _c.classList.remove("hidden");
-                document.getElementById("connectionIcon").style.backgroundImage = "url(resources/icons/disconnected.png)";
-                (_d = document.getElementById("preview")) === null || _d === void 0 ? void 0 : _d.classList.add("blurredPreview");
-                connectionWindowOpened = true;
+                // showModalWindow('connection');
+                // document.getElementById("disconnectedMessage")?.classList.remove("hidden");
+                // document.getElementById("connectionIcon")!.style.backgroundImage = "url(resources/icons/disconnected.png)";
+                // document.getElementById("preview")?.classList.add("blurredPreview");
+                // connectionWindowOpened = true;
             }
         }
         if (!isConnected) {
@@ -257,8 +257,6 @@ function importShortcuts() {
     update();
 }
 //editor.editAttributeById('someId', 'icon', 'newIcon');
-const iconNames = ['copy', 'paste', 'mute', 'volumeup', 'volumedown', 'pause', 'play', 'backward', 'forward', 'screenshot', 'search', 'moon', 'lock'];
-const names = ['Копировать', 'Вставить', 'Без звука', 'Громкость +', 'Громкость -', 'Пауза', 'Продолжить', 'Назад', 'Вперёд', 'Снимок экрана', 'Поиск', 'Не беспокоить', 'Заблокировать'];
 addEventListener("load", (event) => {
     editor.createObject('button1', 'copy', 'meta;c');
     editor.createObject('button2', 'paste', 'meta;v');
@@ -275,32 +273,57 @@ addEventListener("load", (event) => {
     //alert(document.getElementById("iconBox1")!.querySelectorAll<HTMLElement>(".previewIcon")[0].style.backgroundImage);
     //alert(document.getElementById("iconBox1")!.querySelectorAll<HTMLElement>(".previewIcon")[0].classList);
 });
+const iconsByCategory = {
+    'Действия с файлами': ['copy', 'paste', 'info', 'trash', 'rename', 'share', 'save'],
+    'Мультимедиа': ['play', 'pause', 'backward', 'forward', 'full-screen', 'collapse', 'p-in-p'],
+    'Системные действия': ['lock', 'moon', 'screenshot', 'mic', 'eject', 'search', 'update', 'volumedown', 'volumeup', 'heart', 'apps', 'console', 'mail', 'clock', 'calendar', 'close'],
+    'Редактирование': ['cut', 'edit', 'dropper', 'repeat', 'undo']
+};
+function getIconIndex(iconName) {
+    const allIcons = Object.keys(iconsByCategory).flatMap(category => iconsByCategory[category]);
+    const index = allIcons.indexOf(iconName);
+    console.log("1 " + index);
+    return index !== -1 ? index : undefined;
+}
+// const namesByCategory: IconCategories = {
+//   'Значки': ['Копировать', 'Вставить', 'Без звука', 'Громкость +', 'Громкость -', 'Пауза', 'Продолжить', 'Назад', 'Вперёд', 'Снимок экрана', 'Поиск', 'Не беспокоить', 'Заблокировать'],
+// };
 let popups = [];
 class SettingsPopup {
+    getMenuHTML(category) {
+        const iconNames = iconsByCategory[category];
+        return `
+        <p class="subtitle">${category}</p>
+        ${iconNames.map((name, index) => `
+          <div class="listElement iconElement button" onClick="handleIconClick(${this.numberOfScreen}, '${name}');">
+            <div class="icon" style="background-image: url(resources/icons/${name}.png);"></div>
+          </div>
+        `).join('')}
+    `;
+    }
     constructor(element) {
         this.menuOpened = false;
         this.numberOfScreen = "";
         this.menu = document.createElement("div");
         this.element = element;
         this.numberOfScreen = this.element.id.substring(7, 8);
-        const menuHTML = `
-          <div class="categories">
-            <div class="category iconsCategory"><p>Значки</p></div>
-            <div class="category functionsCategory"><p>Виджеты</p></div>
-          </div>
-          <div class="column iconsColumn">
-            ${iconNames.map((name, index) => `
-                <div class="listElement iconElement button" onClick="handleIconClick(${this.numberOfScreen}, ${index});">
-                    <div class="icon" style="background-image: url(resources/icons/${name}.png);"></div>
-                    <p>${names[index]}</p>
-                </div>
-            `).join('')}
-          </div>
-          <div class="column functionsCloumn">
-
-          </div>
-    `;
-        this.menu.innerHTML += menuHTML;
+        // <div class="categories">
+        //         <div class="category iconsCategory"><p>Значки</p></div>
+        //         <div class="category functionsCategory"><p>Виджеты</p></div>
+        //       </div>
+        // const menuHTML = `
+        //       <div class="column iconsColumn">
+        //         ${iconNames.map((name, index) => `
+        //             <div class="listElement iconElement button" onClick="handleIconClick(${this.numberOfScreen}, ${index});">
+        //                 <div class="icon" style="background-image: url(resources/icons/${name}.png);"></div>
+        //                 <p>${names[index]}</p>
+        //             </div>
+        //         `).join('')}
+        //       </div>
+        //       <div class="column functionsCloumn">
+        //       </div>
+        // `;
+        // this.menu.innerHTML += menuHTML;
         popups.push(this);
         this.element.addEventListener('click', () => this.operateMenu());
     }
@@ -325,7 +348,6 @@ class SettingsPopup {
         }
     }
     closeMenu() {
-        console.log("zakrylos");
         const menu = this.menu;
         this.element.classList.remove('activePreview');
         menu.classList.add('hidden');
@@ -334,12 +356,18 @@ class SettingsPopup {
     }
     openMenu() {
         var _a, _b;
-        console.log("otkrylos");
         this.menuOpened = true;
         (_a = this.element) === null || _a === void 0 ? void 0 : _a.classList.add('activePreview');
         this.menu.classList.add("iconMenu");
         this.menu.classList.add("hidden");
         this.menu.id = "menu" + this.element.id.substring(7, 8);
+        const categories = Object.keys(iconsByCategory);
+        let menuHTML = `<h2 style="margin-left: 14px; margin-bottom: 8px;">Выбор значка</h2><div class="column iconsColumn">`;
+        categories.forEach(category => {
+            menuHTML += this.getMenuHTML(category);
+        });
+        menuHTML += `</div>`;
+        this.menu.innerHTML = menuHTML;
         const iconButtons = document.querySelectorAll(".iconElement");
         iconButtons.forEach(button => {
             button.addEventListener('click', () => this.operateMenu());
@@ -352,11 +380,13 @@ class SettingsPopup {
         setTimeout(() => this.menu.classList.remove('hidden'), 10);
     }
 }
-function handleIconClick(numberOfScreen, index) {
+function handleIconClick(numberOfScreen, name) {
     const innerIcon = document.querySelectorAll(".previewIcon")[numberOfScreen - 1];
-    const iconName = iconNames[index];
+    const iconName = name;
+    console.log(name);
+    let index = getIconIndex(name);
     console.log("s" + numberOfScreen + "i" + index);
-    editor.editAttributeById(("button" + numberOfScreen), "icon", iconNames[index]);
+    editor.editAttributeById(("button" + numberOfScreen), "icon", name);
     innerIcon.style.backgroundImage = `url(resources/icons/${iconName}.png)`;
     innerIcon.style.animation = "bounce .2s ease-in-out running";
     globalPort.write("s" + numberOfScreen + "i" + index);
@@ -407,27 +437,32 @@ const clearButton = document.getElementById("clearInputButton");
 const combinations = [];
 let buttonsCount = 0;
 function trackKeyPress(event) {
-    buttonsCount++;
-    if (buttonsCount > 0) {
-        clearButton.style.opacity = "1";
+    if (/^[a-zA-Z\s]+$/.test(event.key)) {
+        buttonsCount++;
+        if (buttonsCount > 0) {
+            clearButton.style.opacity = "1";
+        }
+        else {
+            clearButton.style.opacity = "0";
+        }
+        if (buttonsCount < 6) {
+            event.preventDefault();
+            let keyName = event.key;
+            if (keyName == " ") {
+                keyName = "space";
+            }
+            const keyDiv = document.createElement("div");
+            keyDiv.textContent = keyName.toUpperCase();
+            keyDiv.classList.add("keyBox");
+            if (buttonsCount == 1)
+                keyDiv.classList.add("firstKey");
+            keyDiv.classList.add("hiddenKey");
+            keysInputBox.appendChild(keyDiv);
+            setTimeout(() => keyDiv.classList.remove("hiddenKey"), 10);
+        }
     }
     else {
-        clearButton.style.opacity = "0";
-    }
-    if (buttonsCount < 6) {
-        event.preventDefault();
-        let keyName = event.key;
-        if (keyName == " ") {
-            keyName = "space";
-        }
-        const keyDiv = document.createElement("div");
-        keyDiv.textContent = keyName.toUpperCase();
-        keyDiv.classList.add("keyBox");
-        if (buttonsCount == 1)
-            keyDiv.classList.add("firstKey");
-        keyDiv.classList.add("hiddenKey");
-        keysInputBox.appendChild(keyDiv);
-        setTimeout(() => keyDiv.classList.remove("hiddenKey"), 10);
+        console.log(event.key);
     }
 }
 function clearCombination() {
@@ -459,8 +494,12 @@ function saveCombination() {
     const divs = keysInputBox.querySelectorAll("div");
     const innerTextArray = [];
     divs.forEach((div) => {
-        if (div != clearButton && div != saveButton && div != saveButtonBack[0])
-            innerTextArray.push(div.innerText);
+        if (div !== clearButton && div !== saveButton && div !== saveButtonBack[0]) {
+            const innerText = div.innerText.trim();
+            if (/^[a-zA-Z]+$/.test(innerText)) {
+                innerTextArray.push(innerText);
+            }
+        }
     });
     let combinationText = innerTextArray.join(" + ");
     if (combinationText == null) {

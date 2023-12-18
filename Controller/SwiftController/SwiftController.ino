@@ -231,9 +231,9 @@ void loop() {
     delay(300);
   }
   if (analogRead(34) > 4090) {
-    // Serial.println("2nd");
-    // executeShortcut(collection.get("2"));
-    // delay(300);
+    Serial.println("2nd");
+    executeShortcut(collection.get("2"));
+    delay(300);
   }
   if (analogRead(2) > 4090) {
     Serial.println("3rd");

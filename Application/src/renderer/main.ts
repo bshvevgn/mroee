@@ -15,7 +15,7 @@ let port = new SerialPort({
   path: 'COM1',
   baudRate: 115200
 });
-const portNames = ['/dev/cu.usbserial-0001', '/dev/cu.usbserial-0002', 'COM1', 'COM2', 'COM3', 'COM4'];
+const portNames = ['/dev/cu.usbserial-0001', '/dev/cu.usbserial-0002', '/dev/cu.usbserial-210', '/dev/cu.wchusbserial210', 'COM1', 'COM2', 'COM3', 'COM4'];
 
 
 let accumulatedData: string = ''
@@ -85,12 +85,12 @@ async function main() {
     document.getElementById("preview")?.classList.remove("blurredPreview");
     connectionWindowOpened = false;
   } else {
-    if(!connectionWindowOpened){
-      showModalWindow('connection');
-      document.getElementById("disconnectedMessage")?.classList.remove("hidden");
-      document.getElementById("connectionIcon")!.style.backgroundImage = "url(resources/icons/disconnected.png)";
-      document.getElementById("preview")?.classList.add("blurredPreview");
-      connectionWindowOpened = true;
+    if (!connectionWindowOpened) {
+      // showModalWindow('connection');
+      // document.getElementById("disconnectedMessage")?.classList.remove("hidden");
+      // document.getElementById("connectionIcon")!.style.backgroundImage = "url(resources/icons/disconnected.png)";
+      // document.getElementById("preview")?.classList.add("blurredPreview");
+      // connectionWindowOpened = true;
     }
   }
 
@@ -257,10 +257,6 @@ function importShortcuts() {
 
 //editor.editAttributeById('someId', 'icon', 'newIcon');
 
-const iconNames = ['copy', 'paste', 'mute', 'volumeup', 'volumedown', 'pause', 'play', 'backward', 'forward', 'screenshot', 'search', 'moon', 'lock'];
-const names = ['Копировать', 'Вставить', 'Без звука', 'Громкость +', 'Громкость -', 'Пауза', 'Продолжить', 'Назад', 'Вперёд', 'Снимок экрана', 'Поиск', 'Не беспокоить', 'Заблокировать'];
-
-
 addEventListener("load", (event) => {
   editor.createObject('button1', 'copy', 'meta;c');
   editor.createObject('button2', 'paste', 'meta;v');
@@ -281,6 +277,28 @@ addEventListener("load", (event) => {
   //alert(document.getElementById("iconBox1")!.querySelectorAll<HTMLElement>(".previewIcon")[0].classList);
 });
 
+interface IconCategories {
+  [key: string]: string[];
+}
+
+const iconsByCategory: IconCategories = {
+  'Действия с файлами': ['copy', 'paste', 'info', 'trash', 'rename', 'share', 'save'],
+  'Мультимедиа': ['play', 'pause', 'backward', 'forward', 'full-screen', 'collapse', 'p-in-p'],
+  'Системные действия': ['lock', 'moon', 'screenshot', 'mic', 'eject', 'search', 'update', 'volumedown', 'volumeup', 'heart', 'apps', 'console', 'mail', 'clock', 'calendar', 'close'],
+  'Редактирование': ['cut', 'edit', 'dropper', 'repeat', 'undo']
+};
+
+function getIconIndex(iconName: string): number | undefined {
+  const allIcons = Object.keys(iconsByCategory).flatMap(category => iconsByCategory[category]);
+  const index = allIcons.indexOf(iconName);
+  console.log("1 " + index);
+  return index !== -1 ? index : undefined;
+}
+
+// const namesByCategory: IconCategories = {
+//   'Значки': ['Копировать', 'Вставить', 'Без звука', 'Громкость +', 'Громкость -', 'Пауза', 'Продолжить', 'Назад', 'Вперёд', 'Снимок экрана', 'Поиск', 'Не беспокоить', 'Заблокировать'],
+// };
+
 let popups: Array<SettingsPopup> = [];
 
 class SettingsPopup {
@@ -289,27 +307,42 @@ class SettingsPopup {
   private numberOfScreen = "";
   private menu: HTMLDivElement = document.createElement("div");
 
+
+  private getMenuHTML(category: string) {
+    const iconNames = iconsByCategory[category];
+
+    return `
+        <p class="subtitle">${category}</p>
+        ${iconNames.map((name, index) => `
+          <div class="listElement iconElement button" onClick="handleIconClick(${this.numberOfScreen}, '${name}');">
+            <div class="icon" style="background-image: url(resources/icons/${name}.png);"></div>
+          </div>
+        `).join('')}
+    `;
+  }
+
   constructor(element: HTMLElement) {
     this.element = element;
     this.numberOfScreen = this.element.id.substring(7, 8);
-    const menuHTML = `
-          <div class="categories">
-            <div class="category iconsCategory"><p>Значки</p></div>
-            <div class="category functionsCategory"><p>Виджеты</p></div>
-          </div>
-          <div class="column iconsColumn">
-            ${iconNames.map((name, index) => `
-                <div class="listElement iconElement button" onClick="handleIconClick(${this.numberOfScreen}, ${index});">
-                    <div class="icon" style="background-image: url(resources/icons/${name}.png);"></div>
-                    <p>${names[index]}</p>
-                </div>
-            `).join('')}
-          </div>
-          <div class="column functionsCloumn">
+    // <div class="categories">
+    //         <div class="category iconsCategory"><p>Значки</p></div>
+    //         <div class="category functionsCategory"><p>Виджеты</p></div>
+    //       </div>
 
-          </div>
-    `;
-    this.menu.innerHTML += menuHTML;
+    // const menuHTML = `
+    //       <div class="column iconsColumn">
+    //         ${iconNames.map((name, index) => `
+    //             <div class="listElement iconElement button" onClick="handleIconClick(${this.numberOfScreen}, ${index});">
+    //                 <div class="icon" style="background-image: url(resources/icons/${name}.png);"></div>
+    //                 <p>${names[index]}</p>
+    //             </div>
+    //         `).join('')}
+    //       </div>
+    //       <div class="column functionsCloumn">
+
+    //       </div>
+    // `;
+    // this.menu.innerHTML += menuHTML;
 
     popups.push(this);
     this.element.addEventListener('click', () => this.operateMenu());
@@ -337,7 +370,6 @@ class SettingsPopup {
   }
 
   private closeMenu() {
-    console.log("zakrylos")
     const menu = this.menu;
     this.element.classList.remove('activePreview');
     menu!.classList.add('hidden');
@@ -346,12 +378,21 @@ class SettingsPopup {
   }
 
   private openMenu() {
-    console.log("otkrylos")
     this.menuOpened = true;
     this.element?.classList.add('activePreview');
     this.menu.classList.add("iconMenu");
     this.menu.classList.add("hidden");
     this.menu.id = "menu" + this.element.id.substring(7, 8);
+
+    const categories = Object.keys(iconsByCategory);
+
+    let menuHTML : string = `<h2 style="margin-left: 14px; margin-bottom: 8px;">Выбор значка</h2><div class="column iconsColumn">`;
+    categories.forEach(category => {
+      menuHTML += this.getMenuHTML(category);
+    });
+    menuHTML += `</div>`;
+
+    this.menu.innerHTML = menuHTML;
 
     const iconButtons = document.querySelectorAll<HTMLTableElement>(".iconElement");
     iconButtons.forEach(button => {
@@ -368,12 +409,14 @@ class SettingsPopup {
 
 }
 
-function handleIconClick(numberOfScreen: number, index: number) {
+function handleIconClick(numberOfScreen: number, name: string) {
   const innerIcon = document.querySelectorAll<HTMLTableElement>(".previewIcon")[numberOfScreen - 1];
-  const iconName = iconNames[index];
+  const iconName = name;
+  console.log(name);
+  let index = getIconIndex(name);
 
   console.log("s" + numberOfScreen + "i" + index);
-  editor.editAttributeById(("button" + numberOfScreen), "icon", iconNames[index])
+  editor.editAttributeById(("button" + numberOfScreen), "icon", name)
 
   innerIcon.style.backgroundImage = `url(resources/icons/${iconName}.png)`;
   innerIcon.style.animation = "bounce .2s ease-in-out running";
@@ -438,31 +481,35 @@ const combinations: string[] = [];
 
 let buttonsCount = 0;
 function trackKeyPress(event: KeyboardEvent) {
-  buttonsCount++
+  if (/^[a-zA-Z\s]+$/.test(event.key)) {
+    buttonsCount++
 
-  if (buttonsCount > 0) {
-    clearButton.style.opacity = "1";
-  } else {
-    clearButton.style.opacity = "0";
-  }
-
-  if (buttonsCount < 6) {
-    event.preventDefault();
-    let keyName = event.key;
-
-    if (keyName == " ") {
-      keyName = "space";
+    if (buttonsCount > 0) {
+      clearButton.style.opacity = "1";
+    } else {
+      clearButton.style.opacity = "0";
     }
 
-    const keyDiv = document.createElement("div");
-    keyDiv.textContent = keyName.toUpperCase();
-    keyDiv.classList.add("keyBox");
+    if (buttonsCount < 6) {
+      event.preventDefault();
+      let keyName = event.key;
 
-    if (buttonsCount == 1) keyDiv.classList.add("firstKey");
+      if (keyName == " ") {
+        keyName = "space";
+      }
 
-    keyDiv.classList.add("hiddenKey");
-    keysInputBox.appendChild(keyDiv);
-    setTimeout(() => keyDiv.classList.remove("hiddenKey"), 10);
+      const keyDiv = document.createElement("div");
+      keyDiv.textContent = keyName.toUpperCase();
+      keyDiv.classList.add("keyBox");
+
+      if (buttonsCount == 1) keyDiv.classList.add("firstKey");
+
+      keyDiv.classList.add("hiddenKey");
+      keysInputBox.appendChild(keyDiv);
+      setTimeout(() => keyDiv.classList.remove("hiddenKey"), 10);
+    }
+  } else {
+    console.log(event.key)
   }
 }
 
@@ -503,7 +550,12 @@ function saveCombination() {
   const innerTextArray: string[] = [];
 
   divs.forEach((div) => {
-    if (div != clearButton && div != saveButton && div != saveButtonBack[0]) innerTextArray.push(div.innerText);
+    if (div !== clearButton && div !== saveButton && div !== saveButtonBack[0]) {
+      const innerText = div.innerText.trim();
+      if (/^[a-zA-Z]+$/.test(innerText)) {
+        innerTextArray.push(innerText);
+      }
+    }
   });
 
   let combinationText = innerTextArray.join(" + ");

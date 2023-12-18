@@ -349,12 +349,20 @@ aside{
     background-repeat: no-repeat;
 }
 
+.subtitle{
+    width: 100%;
+    margin-bottom: 0px;
+    margin-left: 14px;
+    opacity: .8;
+}
+
 #dragIcon{
     transition: .3s;
 }
 
 .configPanel{
-    height: calc(50% - 2px);
+    /* height: calc(50% - 2px); */
+    height: 100%;
     margin-bottom: 4px;
     background-color: rgba(255,255,255,0.1);
     width: calc(100% - 2px);
@@ -504,7 +512,7 @@ aside{
 
 .iconMenu{
     height: fit-content;
-    width: 222px;
+    width: 296px;
     display: flex;
     flex-direction: column;
     padding: 8px;

@@ -1,12 +1,12 @@
 [
   {
     "id": "button1",
-    "icon": "copy",
+    "icon": "share",
     "shortcut": "meta;c"
   },
   {
     "id": "button2",
-    "icon": "paste",
+    "icon": "trash",
     "shortcut": "meta;v"
   },
   {
@@ -16,17 +16,18 @@
   },
   {
     "id": "button4",
-    "icon": "lock",
-    "shortcut": "control;meta;q"
+    "icon": "save",
+    "shortcut": "meta;space"
   },
   {
     "id": "shortcutsList",
     "list": [
-      "CONTROL + ARROWUP",
-      "SHIFT + META + 4",
-      "CONTROL + META + Q",
       "META + C",
-      "META + V"
+      "META + V",
+      "META + SHIFT + Q",
+      "META + SPACE",
+      "SHIFT + CONTROL + SPACE",
+      "CONTROL + META + SPACE"
     ]
   }
 ]
