@@ -7,11 +7,17 @@
 #include <EEPROM.h>
 #include <Preferences.h>
 #include "GyverTimer.h"
+#include "GyverButton.h"
 #include "icons.h"
 
 /* Confuguration section */
 #define DIM_ENABLED true
 #define DEVICE_INFO "mroee;S/N092300001"
+
+#define BTN1 4
+#define BTN2 34
+#define BTN3 2
+#define BTN4 15
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -25,16 +31,20 @@ Adafruit_SSD1306 display3(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 Adafruit_SSD1306 display4(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 BleKeyboard keyboard("mroee", "Higlight House", 100);
 
+GButton butt1(BTN1);
+GButton butt2(BTN2);
+GButton butt3(BTN3);
+GButton butt4(BTN4);
+
 Preferences preferences;
 
 GTimer connectionTimer(MS);
 GTimer brTimer(MS);
 
-#define ICON_HEIGHT 60
-#define ICON_WIDTH 60
-
-#define OR_ICON_HEIGHT 64
-#define OR_ICON_WIDTH 64
+const uint8_t INITIAL_ICON_WIDTH = 60;
+const uint8_t INITIAL_ICON_HEIGHT = 60;
+const uint8_t TARGET_ICON_WIDTH = 60;
+const uint8_t TARGET_ICON_HEIGHT = 60;
 
 #define MAX_KEY_LENGTH 16
 #define MAX_VALUE_LENGTH 32
@@ -48,7 +58,7 @@ struct KeyValuePair {
 void TCA9548A(uint8_t bus) {
   Wire.beginTransmission(0x70);
   Wire.write(1 << bus);
-  if(Wire.endTransmission()) {
+  if (Wire.endTransmission()) {
     Serial.println("WIRE ERROR");
   };
 }
@@ -159,10 +169,10 @@ void setup() {
 
   pinMode(5, OUTPUT);
   pinMode(36, INPUT);
-  pinMode(4, INPUT);
-  pinMode(34, INPUT);
-  pinMode(2, INPUT);
-  pinMode(15, INPUT);
+  pinMode(4, INPUT_PULLUP);
+  pinMode(34, INPUT_PULLUP);
+  pinMode(2, INPUT_PULLUP);
+  pinMode(15, INPUT_PULLUP);
   digitalWrite(5, HIGH);
 
   Wire.begin();
@@ -176,8 +186,8 @@ void setup() {
   display1.setRotation(2);
   display1.clearDisplay();
 
-  drawIconS1(logo);
-  delay(1500);
+  drawIconS1(logo, INITIAL_ICON_WIDTH, INITIAL_ICON_HEIGHT);
+  delay(1000);
 
   TCA9548A(5);
   display2.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
@@ -191,8 +201,7 @@ void setup() {
   TCA9548A(3);
   display4.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
   display4.clearDisplay();
-  display4.drawBitmap((display4.width() - ICON_WIDTH) / 2, (display4.height() - ICON_HEIGHT) / 2, lock, ICON_WIDTH, ICON_HEIGHT, 1);
-  
+
   preferences.begin("iconStorage", false);
   restoreState();
   keyboard.begin();
@@ -203,6 +212,11 @@ void setup() {
 }
 
 void loop() {
+  butt1.tick();
+  butt2.tick();
+  butt3.tick();
+  butt4.tick();
+
   if (connectionTimer.isReady()) {
     //Serial.println(DEVICE_INFO);
     //TCA9548A(4);
@@ -210,7 +224,6 @@ void loop() {
     //display1.clearDisplay();
     //display1.drawBitmap((display1.width() - ICON_WIDTH) / 2, (display1.height() - ICON_HEIGHT) / 2, copy_ico, ICON_WIDTH, ICON_HEIGHT, 1);
     //display1.display();
-
   };
 
   if (DIM_ENABLED) {
@@ -225,22 +238,22 @@ void loop() {
   }
 
 
-  if (analogRead(4) > 4090) {
+  if (butt1.isClick()) {
     Serial.println("1st");
     executeShortcut(collection.get("1"));
     delay(300);
   }
-  if (analogRead(34) > 4090) {
+  if (butt2.isClick()) {
     Serial.println("2nd");
     executeShortcut(collection.get("2"));
     delay(300);
   }
-  if (analogRead(2) > 4090) {
+  if (butt3.isClick()) {
     Serial.println("3rd");
     executeShortcut(collection.get("3"));
     delay(300);
   }
-  if (analogRead(15) > 4090) {
+  if (butt4.isClick()) {
     Serial.println("4th");
     executeShortcut(collection.get("4"));
     delay(300);
@@ -353,18 +366,31 @@ void parseAndPressKeys(String command) {
       keyboard.press(KEY_F11);
     else if (tokens[i] == "f12")
       keyboard.press(KEY_F12);
-    else if (tokens[i] == "play")
+    else if (tokens[i] == "play"){
       keyboard.press(KEY_MEDIA_PLAY_PAUSE);
-    else if (tokens[i] == "pause")
+      keyboard.release(KEY_MEDIA_PLAY_PAUSE);
+      break;
+    }
+    else if (tokens[i] == "pause"){
       keyboard.press(KEY_MEDIA_PLAY_PAUSE);
-    else if (tokens[i] == "volumeup")
-      //keyboard.press(KEY_MEDIA_VOLUME_INC);
-      continue;
-    else if (tokens[i] == "volumedown")
-      //keyboard.press(KEY_MEDIA_VOLUME_DEC);
-      continue;
-    else if (tokens[i] == "mute")
+      keyboard.release(KEY_MEDIA_PLAY_PAUSE);
+      break;
+    }
+    else if (tokens[i] == "volumeup"){
+      keyboard.press(KEY_MEDIA_VOLUME_UP);
+      keyboard.release(KEY_MEDIA_VOLUME_UP);
+      break;
+    }
+    else if (tokens[i] == "volumedown"){
+      keyboard.press(KEY_MEDIA_VOLUME_DOWN);
+      keyboard.release(KEY_MEDIA_VOLUME_DOWN);
+      break;
+    }
+    else if (tokens[i] == "mute"){
       keyboard.press(KEY_MEDIA_MUTE);
+      keyboard.release(KEY_MEDIA_MUTE);
+      break;
+    }
     else if (tokens[i] == "next")
       keyboard.press(KEY_MEDIA_NEXT_TRACK);
     else if (tokens[i] == "previous")
@@ -378,50 +404,69 @@ void parseAndPressKeys(String command) {
     }
   }
 
+  delay(10);
   keyboard.releaseAll();
+  delay(10);
 }
 
 
 void parseString(String str) {
+  int startPos = 0;
+  int endPos = str.indexOf('\n');
+
+  while (endPos != -1) {
+    String line = str.substring(startPos, endPos);
+
+    parseLine(line);
+
+    startPos = endPos + 1;
+    endPos = str.indexOf('\n', startPos);
+  }
+
+  String lastLine = str.substring(startPos);
+  parseLine(lastLine);
+}
+
+// Функция парсинга для одной строки
+void parseLine(String line) {
   int screen, icon;
   int pressed;
   String shortcut;
 
-  if (str == "sendConnect") {
+  if (line == "sendConnect") {
     Serial.println(DEVICE_INFO);
     delay(100);
     Serial.println(DEVICE_INFO);
   } else {
-    if (sscanf(str.c_str(), "s%di%d", &screen, &icon) == 2) {
+    if (sscanf(line.c_str(), "s%di%d", &screen, &icon) == 2) {
       changeIcon(screen, icon);
-
-    } else if (sscanf(str.c_str(), "p%d", &pressed) == 1) {
+    } else if (sscanf(line.c_str(), "p%d", &pressed) == 1) {
       String pressedS = String(pressed);
       executeShortcut(collection.get(pressedS.c_str()));
-
     } else {
-      String input = str;
+      String input = line;
       if (input.startsWith("s") && input.indexOf("sc") != -1) {
-          int keyStartIndex = input.indexOf("s") + 1;
-          int keyEndIndex = input.indexOf("sc");
-          int valueStartIndex = input.indexOf("sc") + 2;
+        int keyStartIndex = input.indexOf("s") + 1;
+        int keyEndIndex = input.indexOf("sc");
+        int valueStartIndex = input.indexOf("sc") + 2;
 
-          if (keyStartIndex < keyEndIndex && keyEndIndex < valueStartIndex) {
-              String key = input.substring(keyStartIndex, keyEndIndex);
-              String value = input.substring(valueStartIndex);
-              saveShortcutState(key.toInt(), value);
-              collection.add(key.c_str(), value.c_str());
+        if (keyStartIndex < keyEndIndex && keyEndIndex < valueStartIndex) {
+          String key = input.substring(keyStartIndex, keyEndIndex);
+          String value = input.substring(valueStartIndex);
+          saveShortcutState(key.toInt(), value);
+          collection.add(key.c_str(), value.c_str());
 
-              Serial.print("Screen: ");
-              Serial.print(key.c_str());
-              Serial.print(" Shortcut: ");
-              Serial.print(value.c_str());
-              return;
-          }
+          Serial.print("Screen: ");
+          Serial.print(key.c_str());
+          Serial.print(" Shortcut: ");
+          Serial.print(value.c_str());
+          return;
+        }
       }
     }
   }
 }
+
 
 void changeIcon(uint8_t screenNumber, uint8_t iconNumber) {
   saveIconState(screenNumber, iconNumber);
@@ -429,57 +474,61 @@ void changeIcon(uint8_t screenNumber, uint8_t iconNumber) {
   Serial.print(screenNumber);
   Serial.print(" Icon: ");
   Serial.println(iconNumber);
+
+  const unsigned char* icon = getIcon(iconNumber);
+
+  uint8_t resizedIconWidth = TARGET_ICON_WIDTH;
+  uint8_t resizedIconHeight = TARGET_ICON_HEIGHT;
+  
   switch (screenNumber) {
     case 1:
-      drawIconS1(getIcon(iconNumber));
+      drawIconS1(icon, resizedIconWidth, resizedIconHeight);
       break;
     case 2:
-      drawIconS2(getIcon(iconNumber));
+      drawIconS2(icon, resizedIconWidth, resizedIconHeight);
       break;
     case 3:
-      drawIconS3(getIcon(iconNumber));
+      drawIconS3(icon, resizedIconWidth, resizedIconHeight);
       break;
     case 4:
-      drawIconS4(getIcon(iconNumber));
+      drawIconS4(icon, resizedIconWidth, resizedIconHeight);
       break;
   }
 }
 
 
-const unsigned char* ICONS_LIST[] = { copy_ico, paste_ico, mute_ico, volumeup, volumedown, pause_ico, play, backward, forward, screenshot, search, moon, lock };
-
-const unsigned char* getIcon(int number) {
-  if (number >= 0 && number < sizeof(ICONS_LIST) / sizeof(ICONS_LIST[0])) {
-    return ICONS_LIST[number];
+const unsigned char* getIcon(uint8_t number) {
+  if (number >= 0 && number < epd_bitmap_allArray_LEN) {
+    return epd_bitmap_allArray[number];
   } else {
-    return 0;
+    return nullptr;
   }
 }
 
-void drawIconS1(const unsigned char* icon) {
+void drawIconS1(const unsigned char* icon, uint8_t width, uint8_t height) {
   TCA9548A(4);
   display1.clearDisplay();
-  display1.drawBitmap((display1.width() - ICON_WIDTH) / 2, (display1.height() - ICON_HEIGHT) / 2, icon, ICON_WIDTH, ICON_HEIGHT, 1);
+  display1.drawBitmap((display1.width() - width) / 2, (display1.height() - height) / 2, icon, width, height, 1);
   display1.display();
 }
 
-void drawIconS2(const unsigned char* icon) {
+void drawIconS2(const unsigned char* icon, uint8_t width, uint8_t height) {
   TCA9548A(5);
   display2.clearDisplay();
-  display2.drawBitmap((display2.width() - ICON_WIDTH) / 2, (display2.height() - ICON_HEIGHT) / 2, icon, ICON_WIDTH, ICON_HEIGHT, 1);
+  display2.drawBitmap((display2.width() - width) / 2, (display2.height() - height) / 2, icon, width, height, 1);
   display2.display();
 }
 
-void drawIconS3(const unsigned char* icon) {
+void drawIconS3(const unsigned char* icon, uint8_t width, uint8_t height) {
   TCA9548A(2);
   display3.clearDisplay();
-  display3.drawBitmap((display3.width() - ICON_WIDTH) / 2, (display3.height() - ICON_HEIGHT) / 2, icon, ICON_WIDTH, ICON_HEIGHT, 1);
+  display3.drawBitmap((display3.width() - width) / 2, (display3.height() - height) / 2, icon, width, height, 1);
   display3.display();
 }
 
-void drawIconS4(const unsigned char* icon) {
+void drawIconS4(const unsigned char* icon, uint8_t width, uint8_t height) {
   TCA9548A(3);
   display4.clearDisplay();
-  display4.drawBitmap((display4.width() - ICON_WIDTH) / 2, (display4.height() - ICON_HEIGHT) / 2, icon, ICON_WIDTH, ICON_HEIGHT, 1);
+  display4.drawBitmap((display4.width() - width) / 2, (display4.height() - height) / 2, icon, width, height, 1);
   display4.display();
 }

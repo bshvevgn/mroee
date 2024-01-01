@@ -29,11 +29,18 @@
     <header>
         <div class="icon" id="mainLogo"></div>
         <div class="buttonsContainer">
-            <div class="asideButton activeButton" id="iconsSetButton" onclick="selectContent(this)">
+            <div class="asideWidget hiddenAsideWidget" id="connectionWidget">
+                <div class="popup">
+                    <p id="popupMessage">Подключено</p>
+                </div>
+                <div class="icon" id="connectionIcon" style="background-image: url(resources/icons/connected.png);">
+                </div>
+            </div>
+            <div class="asideButton activeButton button" id="iconsSetButton" onclick="selectContent(this)">
                 <div class="icon" style="background-image: url(resources/icons/screens.png);"></div>
                 <p>Основное</p>
             </div>
-            <div class="asideButton" id="keysSetButton" onclick="selectContent(this)">
+            <div class="asideButton button" id="keysSetButton" onclick="selectContent(this)">
                 <div class="icon" style="background-image: url(resources/icons/keyboard.png);"></div>
                 <p>Сочетания</p>
             </div>
@@ -41,16 +48,9 @@
                 <div class="icon" style="background-image: url(resources/icons/console.png);"></div>
                 <p>Шаблоны</p>
             </div> -->
-            <div class="asideButton" id="infoButton" onclick="selectContent(this)">
+            <div class="asideButton button" id="infoButton" onclick="selectContent(this)">
                 <div class="icon" style="background-image: url(resources/icons/info.png);"></div>
-                <p>Об устройстве</p>
-            </div>
-            <div class="asideWidget hiddenAsideWidget" id="connectionWidget">
-                <div class="popup">
-                    <p>Подключено</p>
-                </div>
-                <div class="icon" id="connectionIcon" style="background-image: url(resources/icons/connected.png);">
-                </div>
+                <p>Информация</p>
             </div>
         </div>
     </header>
@@ -77,7 +77,7 @@
             </div> -->
         </div>
         <div id="previewBox">
-            <p id="disconnectedMessage" class="hidden">Сбой подключения</p>
+            <p id="disconnectedMessage" class="hidden">Отключено</p>
             <div id="preview">
                 <div class="previewIconBox droppable" id="iconBox1" style="top: 76px; left: 76px">
                     <div class="icon previewIcon" style="background-image: url();"></div>
@@ -88,11 +88,13 @@
                 <div class="previewIconBox droppable" id="iconBox3" style="top: calc(50% + 35px); left: 76px">
                     <div class="icon previewIcon" style="background-image: url();"></div>
                 </div>
-                <div class="previewIconBox droppable" id="iconBox4" style="top: calc(50% + 35px); left: calc(50% + 35px)">
+                <div class="previewIconBox droppable" id="iconBox4"
+                    style="top: calc(50% + 35px); left: calc(50% + 35px)">
                     <div class="icon previewIcon" style="background-image: url();"></div>
                 </div>
             </div>
         </div>
+        <div class="maxBr button" id="brightnessToggle"></div>
     </div>
     <div class="content hiddenContent" id="keysSet">
         <div class="pageHead absoluteHead">
@@ -108,11 +110,36 @@
                     <p>Добавить сочетание</p>
                 </div>
             </div>
+            <p class="hint">Нажмите для начала ввода</p>
+            <h2>Предложения</h2>
+            <div class="combinationsBox">
+                <div class="combination button">
+                    <div class="combinationAddButton"></div>
+                    <p>META + Z</p>
+                </div>
+                <div class="combination button">
+                    <div class="combinationAddButton"></div>
+                    <p>META + SHIFT + Z</p>
+                </div>
+                <div class="combination button">
+                    <div class="combinationAddButton"></div>
+                    <p>META + SPACE</p>
+                </div>
+                <div class="combination button">
+                    <div class="combinationAddButton"></div>
+                    <p>META + SPACE</p>
+                </div>
+                <div class="combination button">
+                    <div class="combinationAddButton"></div>
+                    <p>META + F</p>
+                </div>
+            </div>
         </div>
         <div class="semiScreen">
             <h2>Сохранённые сочетания</h2>
+            <p class="hint no-mt">Нажмите для удаления</p>
             <p style="margin-top: -10px;" class="hint" id="emptyCombinationsHint">Нет добавленных сочетаний</p>
-            <div id="combinationsBox">
+            <div class="combinationsBox" id="combinationsBox">
                 <div class="combinationSkeleton">
                     <div class="combinationRemoveButton"></div>
                     <p>META + D</p>
@@ -162,12 +189,15 @@
     </div>-->
     <div class="content hiddenContent" id="info">
         <div class="pageHead">
-            <h1>Об устройстве</h1>
+            <h1>Информация</h1>
         </div>
-        <p>mroee controller Версия 1.0<br>
-            <span id="serialNumber"></span>
-        </p>
-        <p> mroee /connect Версия 1.0</p>
+        <h2 class="hidableInfo">mroee controller<h2>
+                <p class="no-mt hidableInfo" id="serialNumber"></p>
+                <h2>mroee /connect</h2>
+                <div class="row">
+                    <div id="appIcon"></div>
+                    <p class="no-mt">v. 1.0</p>
+                </div>
     </div>
     <script> var exports = {}; </script>
     <script src="dist/renderer/main.js" defer></script>

@@ -108,16 +108,24 @@ function main() {
             (_a = document.getElementById("disconnectedMessage")) === null || _a === void 0 ? void 0 : _a.classList.add("hidden");
             document.getElementById("connectionIcon").style.backgroundImage = "url(resources/icons/connected.png)";
             (_b = document.getElementById("preview")) === null || _b === void 0 ? void 0 : _b.classList.remove("blurredPreview");
+            document.getElementById("popupMessage").innerText = "Подключено";
+            document.querySelectorAll(".hidableInfo").forEach(element => {
+                element.style.display = "block";
+            });
             connectionWindowOpened = false;
         }
         else {
-            if (!connectionWindowOpened) {
-                // showModalWindow('connection');
-                // document.getElementById("disconnectedMessage")?.classList.remove("hidden");
-                // document.getElementById("connectionIcon")!.style.backgroundImage = "url(resources/icons/disconnected.png)";
-                // document.getElementById("preview")?.classList.add("blurredPreview");
-                // connectionWindowOpened = true;
-            }
+            // if (!connectionWindowOpened) {
+            //   showModalWindow('connection');
+            //   document.getElementById("disconnectedMessage")?.classList.remove("hidden");
+            //   document.getElementById("connectionIcon")!.style.backgroundImage = "url(resources/icons/disconnected.png)";
+            //   document.getElementById("preview")?.classList.add("blurredPreview");
+            //   document.getElementById("popupMessage")!.innerText = "Отключено";
+            //   document.querySelectorAll<HTMLElement>(".hidableInfo").forEach(element => {
+            //     element.style.display = "none";
+            //   });
+            //   connectionWindowOpened = true;
+            // }
         }
         if (!isConnected) {
             for (const portName of portNames) {
@@ -276,7 +284,7 @@ addEventListener("load", (event) => {
 const iconsByCategory = {
     'Действия с файлами': ['copy', 'paste', 'info', 'trash', 'rename', 'share', 'save'],
     'Мультимедиа': ['play', 'pause', 'backward', 'forward', 'full-screen', 'collapse', 'p-in-p'],
-    'Системные действия': ['lock', 'moon', 'screenshot', 'mic', 'eject', 'search', 'update', 'volumedown', 'volumeup', 'heart', 'apps', 'console', 'mail', 'clock', 'calendar', 'close'],
+    'Системные действия': ['lock', 'moon', 'screenshot', 'mic', 'mic1', 'eject', 'search', 'update', 'mute', 'volumedown', 'volumeup', 'heart', 'apps', 'console', 'mail', 'clock', 'calendar', 'close'],
     'Редактирование': ['cut', 'edit', 'dropper', 'repeat', 'undo']
 };
 function getIconIndex(iconName) {
@@ -380,16 +388,28 @@ class SettingsPopup {
         setTimeout(() => this.menu.classList.remove('hidden'), 10);
     }
 }
+function textToShortcut(text) {
+    return text.replace(/(\s)\+(\s)/g, ';').toLowerCase();
+}
+function setShortcutToScreen(numberOfScreen, shortcutText) {
+    const shortcut = textToShortcut(shortcutText);
+    globalPort.write("s" + numberOfScreen + "sc" + shortcut + "\n");
+    console.log("s" + numberOfScreen + "sc" + shortcut);
+    editor.editAttributeById(("button" + numberOfScreen), "shortcut", shortcut);
+}
 function handleIconClick(numberOfScreen, name) {
     const innerIcon = document.querySelectorAll(".previewIcon")[numberOfScreen - 1];
     const iconName = name;
     console.log(name);
-    let index = getIconIndex(name);
-    console.log("s" + numberOfScreen + "i" + index);
+    if (name === "pause" || name === "play" || name === "volumeup" || name === "volumedown" || name === "mute") {
+        setShortcutToScreen(numberOfScreen, name);
+    }
     editor.editAttributeById(("button" + numberOfScreen), "icon", name);
+    let index = getIconIndex(name);
+    globalPort.write("s" + numberOfScreen + "i" + index);
+    console.log("s" + numberOfScreen + "i" + index);
     innerIcon.style.backgroundImage = `url(resources/icons/${iconName}.png)`;
     innerIcon.style.animation = "bounce .2s ease-in-out running";
-    globalPort.write("s" + numberOfScreen + "i" + index);
     setTimeout(() => innerIcon.style.animation = "none", 200);
 }
 const previewIconBoxes = document.querySelectorAll('.previewIconBox');
@@ -849,3 +869,14 @@ class DraggableElement {
         return text.replace(/(\s)\+(\s)/g, ';').toLowerCase();
     }
 }
+const brightnessToggle = document.getElementById('brightnessToggle');
+const images = ["resources/icons/maxBr.png", "resources/icons/autoBr.png", "resources/icons/moon.png"];
+let currentImageIndex = 0;
+function toggleImage() {
+    const currentImage = images[currentImageIndex];
+    brightnessToggle.style.backgroundImage = `url('${currentImage}')`;
+    currentImageIndex = (currentImageIndex + 1) % images.length;
+}
+brightnessToggle.addEventListener('click', () => {
+    toggleImage();
+});
