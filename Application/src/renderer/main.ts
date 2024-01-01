@@ -394,7 +394,7 @@ class SettingsPopup {
 
     const categories = Object.keys(iconsByCategory);
 
-    let menuHTML : string = `<h2 style="margin-left: 14px; margin-bottom: 8px;">Выбор значка</h2><div class="column iconsColumn">`;
+    let menuHTML: string = `<h2 style="margin-left: 14px; margin-bottom: 8px;">Выбор значка</h2><div class="column iconsColumn">`;
     categories.forEach(category => {
       menuHTML += this.getMenuHTML(category);
     });
@@ -421,18 +421,18 @@ function textToShortcut(text: string): string {
   return text.replace(/(\s)\+(\s)/g, ';').toLowerCase();
 }
 
-function setShortcutToScreen(numberOfScreen : number, shortcutText : string){
-        const shortcut = textToShortcut(shortcutText)
-        globalPort.write("s" + numberOfScreen + "sc" + shortcut + "\n");
-        console.log("s" + numberOfScreen + "sc" + shortcut);
-        editor.editAttributeById(("button" + numberOfScreen), "shortcut", shortcut);
+function setShortcutToScreen(numberOfScreen: number, shortcutText: string) {
+  const shortcut = textToShortcut(shortcutText)
+  globalPort.write("s" + numberOfScreen + "sc" + shortcut + "\n");
+  console.log("s" + numberOfScreen + "sc" + shortcut);
+  editor.editAttributeById(("button" + numberOfScreen), "shortcut", shortcut);
 }
 
 function handleIconClick(numberOfScreen: number, name: string) {
   const innerIcon = document.querySelectorAll<HTMLTableElement>(".previewIcon")[numberOfScreen - 1];
   const iconName = name;
   console.log(name);
-  if(name === "pause" || name === "play" || name === "volumeup" || name === "volumedown" || name === "mute"){
+  if (name === "pause" || name === "play" || name === "volumeup" || name === "volumedown" || name === "mute") {
     setShortcutToScreen(numberOfScreen, name);
   }
 
@@ -455,7 +455,12 @@ previewIconBoxes.forEach((previewIconBox) => {
 const asideButtons = document.querySelectorAll<HTMLTableElement>('.asideButton');
 const contentBoxes = document.querySelectorAll<HTMLTableElement>('.content');
 
+let prevID = "";
+
 function selectContent(button: HTMLElement) {
+  prevID = document.querySelector(".selectedContent")!.id;
+  console.log(prevID);
+
   setTimeout(() => update(), 300);
 
   let buttonID = button.id;
@@ -467,6 +472,7 @@ function selectContent(button: HTMLElement) {
     document.getElementById("connectionWidget")?.classList.add("hiddenAsideWidget");
   }
 
+
   asideButtons.forEach(button => {
     button.classList.remove('activeButton');
   });
@@ -474,9 +480,27 @@ function selectContent(button: HTMLElement) {
   button.classList.add('activeButton');
 
   contentBoxes.forEach(box => {
-    box.classList.add('hiddenContent');
+    box.classList.remove("selectedContent");
+  });
+
+
+  contentBoxes.forEach(box => {
+    if (box.id == prevID) {
+      box.classList.add('hiddenContent');
+    }
     if (box.id == id) {
+      box.classList.remove('nextContent');
       box.classList.remove('hiddenContent');
+      box.classList.add('selectedContent')
+    }
+  });
+
+  contentBoxes.forEach(box => {
+    if (box.id != id) {
+      setTimeout(() => {
+        box.classList.remove('hiddenContent');
+        box.classList.add('nextContent');
+      }, 300)
     }
   });
 }
@@ -774,13 +798,11 @@ function update() {
     skeletons.forEach(element => {
       element.style.display = "none";
     });
-    //combinationsBox!.style.backgroundImage = "url()";
   } else {
     emptyCombinationsHint!.style.display = "block";
     skeletons.forEach(element => {
       element.style.display = "block";
     });
-    //combinationsBox!.style.backgroundImage = "url(resources/images/combinationsSkeleton.png)";
   }
 
   const combinationsPanel = document.getElementById("combinationsBox");
@@ -799,7 +821,6 @@ function copyCombinations(source: HTMLElement | null, target: HTMLElement | null
   target!.innerHTML = '';
 
   for (const child of source!.children) {
-    //child.classList.add("draggable");
     let clone = child.cloneNode(true) as HTMLElement;
     clone.classList.add("draggable");
     target!.appendChild(clone);
@@ -967,16 +988,20 @@ class DraggableElement {
         this.clone!.style.top =
           this.underElement!.getBoundingClientRect().top + (this.underElement!.offsetHeight - this.clone!.offsetHeight) / 2 + 'px';
         //this.underElement!.style.backdropFilter = "blur(10px)";
+        let doneMark = document.createElement("div");
+        doneMark.classList.add("doneMark");
         setTimeout(() => {
           this.clone!.style.filter = 'blur(20px)';
           this.underElement!.querySelectorAll<HTMLElement>(".previewIcon")[0]!.style.transition = ".2s";
           this.underElement!.querySelectorAll<HTMLElement>(".previewIcon")[0]!.style.opacity = "0";
+          this.underElement!.appendChild(doneMark);
           this.clone!.style.transform = 'scale(.6)';
           this.underElement!.classList.remove('droppableActive');
         }, 200);
 
-        setTimeout(() => { this.underElement!.style.backdropFilter = "blur(0px)"; this.underElement!.querySelectorAll<HTMLElement>(".previewIcon")[0]!.style.opacity = "1"; }, 1300);
-        setTimeout(() => this.underElement!.querySelectorAll<HTMLElement>(".previewIcon")[0]!.style.transition = ".1s", 1500);
+        setTimeout(() => { doneMark.style.opacity = "0" }, 1300);
+        setTimeout(() => { this.underElement!.removeChild(doneMark); this.underElement!.style.backdropFilter = "blur(0px)"; this.underElement!.querySelectorAll<HTMLElement>(".previewIcon")[0]!.style.opacity = "1"; }, 1500);
+        setTimeout(() => this.underElement!.querySelectorAll<HTMLElement>(".previewIcon")[0]!.style.transition = ".1s", 1700);
       }
       setTimeout(() => (this.clone!.style.opacity = '0'), 300);
       setTimeout(() => (this.element.style.opacity = '1'), 200);
@@ -1010,7 +1035,7 @@ const brightnessToggle = document.getElementById('brightnessToggle');
 
 const images = ["resources/icons/maxBr.png", "resources/icons/autoBr.png", "resources/icons/moon.png"];
 
-let currentImageIndex = 0;
+let currentImageIndex = 1;
 
 function toggleImage() {
   const currentImage = images[currentImageIndex];

@@ -9,6 +9,11 @@
 }
 
 @font-face {
+    font-family: Stolzl;
+    src: url(../fonts/Stolzl.otf);
+}
+
+@font-face {
     font-family: Inter;
     src: url(../fonts/Inter.ttf);
 }
@@ -34,6 +39,8 @@ h1, h2, p{
 
 h1, h2{
     font-weight: 400;
+    margin-bottom: 10px;
+    /* font-family: 'Stolzl', sans-serif; */
 }
 
 p{
@@ -58,7 +65,7 @@ header{
     padding: 40px;
     width: calc(100% - 60px);
     position: fixed;
-    backdrop-filter: blur(20px);
+    /* backdrop-filter: blur(20px); */
     z-index: 10;
     background-color: rgb(0 0 0 / 0%);
 }
@@ -101,6 +108,7 @@ header{
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
+    fill: #ffffff;
 }
 
 #mainLogo{
@@ -124,36 +132,38 @@ aside{
 
 .buttonsContainer{
     background-color: #21212100;
-    height: fit-content;
-    width: max-content;
+    height: 100vh;
+    width: 120px;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-wrap: wrap;
     /* padding: 5px; */
     border-radius: 34px;
     /* border: 1px solid #ffffff1a; */
     position: absolute;
-    right: 40px;
+    top: 0px;
+    left: 0;
     /* transform: translate(-50%, 0px); */
     align-items: center;
     z-index: 1000;
+    justify-content: center;
 }
 
 .asideButton{
-    background-color: #ffffff00;
-    margin-left: 4px;
+    background-color: rgb(255 255 255 / 10%);
+    margin-bottom: 4px;
     display: flex;
     flex-direction: row;
     align-items: center;
     height: fit-content;
     width: max-content;
     align-items: center;
-    padding: 18px 18px;
-    border-radius: 31px;
+    padding: 22px 22px;
+    border-radius: 40px;
     flex-wrap: nowrap;
     width: fit-content;
     transition: .1s;
-    border: 1px solid rgb(255 255 255 / 20%);
+    /* border: 1px solid rgb(255 255 255 / 20%); */
     justify-content: center;
 }
 
@@ -212,11 +222,11 @@ aside{
     border: 1px solid rgba(255, 255, 255, 0.15);
     padding: 12px 20px;
     position: absolute;
-    top: calc(100% + 10px);
-    left: 50%;
-    transform: translate(-50%, 0px);
+    left: 100%;
+    transform: translate(0%, 0px);
     opacity: 0;
     transition: 200ms 300ms;
+    backdrop-filter: blur(10px);
 }
 
 .activeButton{
@@ -239,24 +249,25 @@ aside{
     margin: 0px 0px 0px 12px;
     /* display: none; */
     font-size: 16px;
+    display: none;
 }
 
 .content:has(.absoluteHead){
-    width: calc(100vw - 40px);
-    padding: 90px 20px 20px 20px;
+    width: calc(100vw - 140px);
+    padding: 90px 20px 20px 120px;
     position: absolute;
     bottom: 0px;
     right: 0px;
     overflow-y: scroll;
-    height: calc(100vh - 290px);
+    height: calc(100vh - 260px);
     max-width: 5000px;
     transform: scale(1);
-    transition: opacity 300ms 300ms, max-width 0ms 300ms, transform 300ms 300ms, filter 300ms 300ms;
+    transition: opacity 300ms 200ms, max-width 0ms 200ms, transform 300ms 200ms, filter 300ms 200ms;
 }
 
 .content{
-    width: calc(100vw - 80px);
-    padding: 10px 40px 30px 40px;
+    width: calc(100vw - 180px);
+    padding: 10px 40px 30px 140px;
     position: absolute;
     bottom: 0px;
     right: 0px;
@@ -264,43 +275,101 @@ aside{
     height: calc(100vh - 140px);
     max-width: 5000px;
     transform: scale(1);
-    transition: opacity 300ms 300ms, max-width 0ms 300ms, transform 300ms 300ms, filter 300ms 300ms;
+    transition: opacity 300ms 200ms, max-width 0ms 200ms, transform 300ms 200ms, filter 300ms 200ms;
 }
 
 .hiddenContent{
+    padding: 0!important;
     touch-action: none;
-    transform: scale(0.96)!important;
-    filter: blur(20px)!important;
+    transform: scale(0.94)!important;
+    filter: blur(10px)!important;
     max-width: 0px!important;
-    transition: opacity 300ms 0ms, max-width 0ms 300ms, transform 300ms 0ms, filter 300ms 0ms!important;
+    transition: opacity 300ms 0ms, max-width 0ms 300ms, padding 0ms 300ms, transform 300ms 0ms, filter 300ms 0ms!important;
     opacity: 0;
 }
 
+.nextContent{
+    padding: 0!important;
+    touch-action: none;
+    transform: scale(1.04)!important;
+    filter: blur(10px)!important;
+    max-width: 0px!important;
+    transition: opacity 300ms 0ms, max-width 0ms 0ms, padding 0ms 0ms, transform 300ms 0ms, filter 300ms 0ms!important;
+    opacity: 0;
+}
+
+.doneMark{
+    position: absolute;
+    top: calc(48% - 30px);
+    left: calc(48% - 30px);
+    transition: .2s;
+    height: 60px;
+    width: 60px;
+    background-image: url(../icons/done.png);
+    background-position: center;
+    background-size: cover;
+    filter: drop-shadow(0px 0px 20px rgba(255, 255, 255, 0.5));
+}
+
+/* .content{
+    width: calc(100vw - 180px);
+    padding: 10px 40px 30px 140px;
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    overflow-y: scroll;
+    height: calc(100vh - 140px);
+    max-width: 5000px;
+    transform: translate(0px, 0px);
+    transition: opacity 300ms 200ms, max-width 0ms 200ms, transform 300ms 200ms, filter 300ms 200ms;
+}
+
+.hiddenContent{
+    padding: 0!important;
+    touch-action: none;
+    transform: translate(-50px, 0px)!important;
+    filter: blur(14px)!important;
+    max-width: 0px!important;
+    transition: opacity 300ms 0ms, max-width 0ms 300ms, padding 0ms 300ms, transform 300ms 0ms, filter 300ms 0ms!important;
+    opacity: 0;
+}
+
+.nextContent{
+    padding: 0!important;
+    touch-action: none;
+    transform: translate(50px, 0px)!important;
+    filter: blur(14px)!important;
+    max-width: 0px!important;
+    transition: opacity 300ms 0ms, max-width 0ms 0ms, padding 0ms 0ms, transform 300ms 0ms, filter 300ms 0ms!important;
+    opacity: 0;
+} */
+
 .pageHead{
-    width: 100%;
+    width: calc(100% - 0px);
     height: fit-content;
     float: left;
     height: fit-content;
     margin-bottom: 30px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
 }
 
 .absoluteHead{
     position: absolute;
-    top: 110px;
-    left: 40px;
+    top: 90px;
+    width: calc(100% - 140px);
 }
 
 .content:has(.absoluteHead){
-    padding-top: 250px;
+    padding-top: 220px;
 }
 
 .pageHead h1{
     margin-bottom: -4px;
     /* width: 100%; */
     font-size: 40px;
+    margin-top: 0px;
 }
 
 .pageHead p{
@@ -328,7 +397,7 @@ aside{
     height: calc(100% - 158px);
     width: 450px;
     bottom: 20px;
-    left: 20px;
+    left: 120px;
     display: flex;
     flex-direction: column;
 }
@@ -367,7 +436,7 @@ aside{
     margin-bottom: 4px;
     background-color: rgba(255,255,255,0.1);
     width: calc(100% - 2px);
-    border-radius: 34px;
+    border-radius: 40px;
     position: relative;
 }
 
@@ -376,8 +445,8 @@ aside{
 }
 
 .configPanel .sectionHead{
-    padding: 20px;
-    width: calc(100% - 40px);
+    padding: 24px;
+    width: calc(100% - 48px);
     height: fit-content;
 }
 
@@ -393,7 +462,11 @@ aside{
 }
 
 .no-mt{
-    margin-top: 0px;
+    margin-top: 0px!important;
+}
+
+.no-mb{
+    margin-bottom: 0px!important;
 }
 
 #combinationsSectionInner{
@@ -402,9 +475,9 @@ aside{
     position: absolute;
     bottom: 0px;
     left: 0px;
-    padding: 10px 20px 20px 20px;
-    width: calc(100% - 40px);
-    height: calc(100% - 110px);
+    padding: 10px 24px 24px 24px;
+    width: calc(100% - 48px);
+    height: calc(100% - 118px);
     flex-direction: row;
     flex-wrap: wrap;
     margin-top: -10px;
@@ -435,7 +508,7 @@ aside{
 
 #previewBox{
     height: calc(100% - 188px);
-    width: calc(100% - 534px);
+    width: calc(100% - 630px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -651,7 +724,7 @@ aside{
     height: 56px;
     width: 56px;
     opacity: .8;
-    filter: drop-shadow(0px 0px 20px rgba(255, 255, 255, 1));
+    filter: drop-shadow(0px 0px 20px rgba(255, 255, 255, 0.5));
     transition: .1s;
 }
 
@@ -831,7 +904,7 @@ aside{
     position: absolute;
     bottom: 3px;
     right: 3px;
-    background-image: url(../icons/done.png);
+    background-image: url(../icons/add.png);
     background-position: center;
     background-size: 50%;
     background-repeat: no-repeat;
@@ -846,15 +919,18 @@ aside{
 
 .combinationsBox, #terminalCommandsBox{
     width: 100%;
-    height: fit-content;
+    min-height: calc(100% - 106px);
+    /* height: fit-content; */
     display: flex;
     flex-direction: row;
-    border-radius: 16px;
+    /* border-radius: 16px; */
     flex-wrap: wrap;
-    height: 100%;
+    /* height: 100%; */
     background-size: contain;
     background-repeat: no-repeat;
     align-content: flex-start;
+    overflow-y: auto;
+    padding-bottom: 20px;
 }
 
 .combination, .terminalCommand, .combinationSkeleton{
@@ -899,11 +975,13 @@ aside{
 
 
 .combination:hover p, .terminalCommand:hover p{
-    filter: blur(20px);
+    transform: scale(1.1);
+    filter: blur(4px);
     opacity: 0;
 }
 
 .draggable p, .draggable:hover p{
+    transform: scale(1)!important;
     opacity: 1!important;
     filter: blur(0px)!important;
     transition: 0s;
@@ -945,11 +1023,16 @@ aside{
 .semiScreen{
     background-color: rgb(255 255 255 / 8%);
     width: calc(50% - 40px);
-    padding: 10px 20px 20px 20px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
     margin-right: 6px;
-    border-radius: 34px;
+    border-radius: 40px;
+    overflow: hidden;
+}
+
+.semiScreen:last-child{
+    margin-right: 0px;
 }
 
 #keysSet{
@@ -973,6 +1056,8 @@ aside{
 
 .hint{
     opacity: .7;
+    margin-top: 8px;
+    font-size: 13px;
 }
 
 .shake{

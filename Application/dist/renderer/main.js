@@ -418,8 +418,11 @@ previewIconBoxes.forEach((previewIconBox) => {
 });
 const asideButtons = document.querySelectorAll('.asideButton');
 const contentBoxes = document.querySelectorAll('.content');
+let prevID = "";
 function selectContent(button) {
     var _a, _b;
+    prevID = document.querySelector(".selectedContent").id;
+    console.log(prevID);
     setTimeout(() => update(), 300);
     let buttonID = button.id;
     let id = buttonID.substring(0, buttonID.length - 6);
@@ -434,9 +437,24 @@ function selectContent(button) {
     });
     button.classList.add('activeButton');
     contentBoxes.forEach(box => {
-        box.classList.add('hiddenContent');
+        box.classList.remove("selectedContent");
+    });
+    contentBoxes.forEach(box => {
+        if (box.id == prevID) {
+            box.classList.add('hiddenContent');
+        }
         if (box.id == id) {
+            box.classList.remove('nextContent');
             box.classList.remove('hiddenContent');
+            box.classList.add('selectedContent');
+        }
+    });
+    contentBoxes.forEach(box => {
+        if (box.id != id) {
+            setTimeout(() => {
+                box.classList.remove('hiddenContent');
+                box.classList.add('nextContent');
+            }, 300);
         }
     });
 }
@@ -678,14 +696,12 @@ function update() {
         skeletons.forEach(element => {
             element.style.display = "none";
         });
-        //combinationsBox!.style.backgroundImage = "url()";
     }
     else {
         emptyCombinationsHint.style.display = "block";
         skeletons.forEach(element => {
             element.style.display = "block";
         });
-        //combinationsBox!.style.backgroundImage = "url(resources/images/combinationsSkeleton.png)";
     }
     const combinationsPanel = document.getElementById("combinationsBox");
     const combinationConfigPanel = document.getElementById("combinationsSectionInner");
@@ -698,7 +714,6 @@ function update() {
 function copyCombinations(source, target) {
     target.innerHTML = '';
     for (const child of source.children) {
-        //child.classList.add("draggable");
         let clone = child.cloneNode(true);
         clone.classList.add("draggable");
         target.appendChild(clone);
@@ -837,15 +852,19 @@ class DraggableElement {
                 this.clone.style.top =
                     this.underElement.getBoundingClientRect().top + (this.underElement.offsetHeight - this.clone.offsetHeight) / 2 + 'px';
                 //this.underElement!.style.backdropFilter = "blur(10px)";
+                let doneMark = document.createElement("div");
+                doneMark.classList.add("doneMark");
                 setTimeout(() => {
                     this.clone.style.filter = 'blur(20px)';
                     this.underElement.querySelectorAll(".previewIcon")[0].style.transition = ".2s";
                     this.underElement.querySelectorAll(".previewIcon")[0].style.opacity = "0";
+                    this.underElement.appendChild(doneMark);
                     this.clone.style.transform = 'scale(.6)';
                     this.underElement.classList.remove('droppableActive');
                 }, 200);
-                setTimeout(() => { this.underElement.style.backdropFilter = "blur(0px)"; this.underElement.querySelectorAll(".previewIcon")[0].style.opacity = "1"; }, 1300);
-                setTimeout(() => this.underElement.querySelectorAll(".previewIcon")[0].style.transition = ".1s", 1500);
+                setTimeout(() => { doneMark.style.opacity = "0"; }, 1300);
+                setTimeout(() => { this.underElement.removeChild(doneMark); this.underElement.style.backdropFilter = "blur(0px)"; this.underElement.querySelectorAll(".previewIcon")[0].style.opacity = "1"; }, 1500);
+                setTimeout(() => this.underElement.querySelectorAll(".previewIcon")[0].style.transition = ".1s", 1700);
             }
             setTimeout(() => (this.clone.style.opacity = '0'), 300);
             setTimeout(() => (this.element.style.opacity = '1'), 200);
@@ -871,7 +890,7 @@ class DraggableElement {
 }
 const brightnessToggle = document.getElementById('brightnessToggle');
 const images = ["resources/icons/maxBr.png", "resources/icons/autoBr.png", "resources/icons/moon.png"];
-let currentImageIndex = 0;
+let currentImageIndex = 1;
 function toggleImage() {
     const currentImage = images[currentImageIndex];
     brightnessToggle.style.backgroundImage = `url('${currentImage}')`;

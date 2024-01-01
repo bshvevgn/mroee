@@ -1,18 +1,18 @@
 [
   {
     "id": "button1",
-    "icon": "volumedown",
-    "shortcut": "meta;space"
+    "icon": "share",
+    "shortcut": "shift;meta;space"
   },
   {
     "id": "button2",
-    "icon": "volumeup",
-    "shortcut": "volumeup"
+    "icon": "trash",
+    "shortcut": "shift;meta;space"
   },
   {
     "id": "button3",
-    "icon": "screenshot",
-    "shortcut": "meta;space"
+    "icon": "info",
+    "shortcut": "meta;f"
   },
   {
     "id": "button4",
@@ -22,17 +22,15 @@
   {
     "id": "shortcutsList",
     "list": [
-      "META + SHIFT + Q",
-      "SHIFT + CONTROL + SPACE",
-      "CONTROL + META + SPACE",
-      "META + SPACE + S + A",
-      "META + S",
       "META + Z",
       "META + SHIFT + Z",
-      "META + SPACE",
-      "META + C",
-      "W + E + F",
-      "META + SPACE + W + S"
+      "META + Q",
+      "SHIFT + META + SPACE",
+      "SHIFT + META + W",
+      "CONTROL + META + SPACE",
+      "META + SPACE + F",
+      "META + F",
+      "SHIFT + M"
     ]
   }
 ]

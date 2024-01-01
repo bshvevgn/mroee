@@ -29,13 +29,6 @@
     <header>
         <div class="icon" id="mainLogo"></div>
         <div class="buttonsContainer">
-            <div class="asideWidget hiddenAsideWidget" id="connectionWidget">
-                <div class="popup">
-                    <p id="popupMessage">Подключено</p>
-                </div>
-                <div class="icon" id="connectionIcon" style="background-image: url(resources/icons/connected.png);">
-                </div>
-            </div>
             <div class="asideButton activeButton button" id="iconsSetButton" onclick="selectContent(this)">
                 <div class="icon" style="background-image: url(resources/icons/screens.png);"></div>
                 <p>Основное</p>
@@ -44,20 +37,23 @@
                 <div class="icon" style="background-image: url(resources/icons/keyboard.png);"></div>
                 <p>Сочетания</p>
             </div>
-            <!-- <div class="asideButton" id="terminalSetButton" onclick="selectContent(this)">
-                <div class="icon" style="background-image: url(resources/icons/console.png);"></div>
-                <p>Шаблоны</p>
-            </div> -->
             <div class="asideButton button" id="infoButton" onclick="selectContent(this)">
                 <div class="icon" style="background-image: url(resources/icons/info.png);"></div>
                 <p>Информация</p>
             </div>
+            <div class="asideWidget hiddenAsideWidget" id="connectionWidget">
+                <div class="popup">
+                    <p id="popupMessage">Подключено</p>
+                </div>
+                <div class="icon" id="connectionIcon" style="background-image: url(resources/icons/connected.png);">
+                </div>
+            </div>
         </div>
     </header>
-    <div class="content" id="iconsSet">
+    <div class="content selectedContent" id="iconsSet">
         <div class="pageHead">
             <h1>Основные настройки</h1>
-            <p>Выберите необходимый значок или виджет для каждого из экранов</p>
+            <p>Выберите необходимый значок и сочетание клавиш для каждого из экранов</p>
         </div>
         <div id="configurationPanel">
             <div id="dragIcon" class="draggable"></div>
@@ -79,30 +75,30 @@
         <div id="previewBox">
             <p id="disconnectedMessage" class="hidden">Отключено</p>
             <div id="preview">
-                <div class="previewIconBox droppable" id="iconBox1" style="top: 76px; left: 76px">
+                <div class="previewIconBox droppable" id="iconBox1" style="top: 76px; left: 82px">
                     <div class="icon previewIcon" style="background-image: url();"></div>
                 </div>
-                <div class="previewIconBox droppable" id="iconBox2" style="top: 76px; left: calc(50% + 37px)">
+                <div class="previewIconBox droppable" id="iconBox2" style="top: 76px; left: calc(50% + 42px)">
                     <div class="icon previewIcon" style="background-image: url();"></div>
                 </div>
-                <div class="previewIconBox droppable" id="iconBox3" style="top: calc(50% + 35px); left: 76px">
-                    <div class="icon previewIcon" style="background-image: url();"></div>
+                <div class="previewIconBox droppable" id="iconBox3" style="top: calc(50% + 35px); left: 82px">
+                    <div class="icon previewIcon" style="background-image: url(); top: 52%"></div>
                 </div>
                 <div class="previewIconBox droppable" id="iconBox4"
-                    style="top: calc(50% + 35px); left: calc(50% + 35px)">
-                    <div class="icon previewIcon" style="background-image: url();"></div>
+                    style="top: calc(50% + 35px); left: calc(50% + 42px)">
+                    <div class="icon previewIcon" style="background-image: url(); top: 52%"></div>
                 </div>
             </div>
         </div>
         <div class="maxBr button" id="brightnessToggle"></div>
     </div>
-    <div class="content hiddenContent" id="keysSet">
+    <div class="content nextContent" id="keysSet">
         <div class="pageHead absoluteHead">
             <h1>Сочетания клавиш</h1>
             <p>Сохраняйте необходимые сочетания клавиш для быстрого доступа</p>
         </div>
         <div class="semiScreen">
-            <h2>Добавить новое сочетание</h2>
+            <h2 class="no-mt">Добавить новое сочетание</h2>
             <div id="keysInputBox">
                 <div class="icon" id="clearInputButton" style="background-image: url(resources/icons/close.png);"></div>
                 <div class="saveButtonBack"></div>
@@ -136,7 +132,7 @@
             </div>
         </div>
         <div class="semiScreen">
-            <h2>Сохранённые сочетания</h2>
+            <h2 class="no-mb no-mt">Сохранённые сочетания</h2>
             <p class="hint no-mt">Нажмите для удаления</p>
             <p style="margin-top: -10px;" class="hint" id="emptyCombinationsHint">Нет добавленных сочетаний</p>
             <div class="combinationsBox" id="combinationsBox">
@@ -187,7 +183,7 @@
             <div id="treminalCommandsBox"></div>
         </div>
     </div>-->
-    <div class="content hiddenContent" id="info">
+    <div class="content nextContent" id="info">
         <div class="pageHead">
             <h1>Информация</h1>
         </div>
