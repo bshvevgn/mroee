@@ -737,6 +737,11 @@ function saveCombination() {
       p.remove();
     }
   });
+
+  const hiddenText = document.createElement("p");
+  hiddenText.classList.add("hiddenCombText");
+  hiddenText.innerText = combinationText;
+  combinationBlock.appendChild(hiddenText);
 }
 
 

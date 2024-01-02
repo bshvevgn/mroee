@@ -1,33 +1,34 @@
 [
   {
     "id": "button1",
-    "icon": "share",
-    "shortcut": "alt;meta"
+    "icon": "save",
+    "shortcut": "meta;s"
   },
   {
     "id": "button2",
-    "icon": "rename",
+    "icon": "trash",
     "shortcut": "volumeup"
   },
   {
     "id": "button3",
-    "icon": "mic",
+    "icon": "copy",
     "shortcut": "alt;meta"
   },
   {
     "id": "button4",
-    "icon": "close",
+    "icon": "paste",
     "shortcut": "meta;q"
   },
   {
     "id": "shortcutsList",
     "list": [
-      "ALT META",
-      "ALT META",
-      "W E META D",
-      "W E F META W",
-      "ALT META",
-      "META Q"
+      "META S",
+      "META C",
+      "META V",
+      "META SPACE",
+      "ALT SHIFT F",
+      "META Q",
+      "CONTROL META A"
     ]
   },
   {
