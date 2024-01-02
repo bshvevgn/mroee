@@ -32,78 +32,130 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-setTimeout(() => { var _a; return (_a = document.getElementById('preloader')) === null || _a === void 0 ? void 0 : _a.classList.add('hiddenPreloader'); }, 2000);
-setTimeout(() => document.getElementById('logoAnimation').style.display = "none", 2300);
 const { SerialPort } = require('serialport');
-let connectionWindowOpened = false;
-let isConnected = true;
-let receivedData = false;
-let globalPortName = '';
-let globalPort = new SerialPort({
-    path: 'COM1',
-    baudRate: 115200
-});
-let port = new SerialPort({
-    path: 'COM1',
-    baudRate: 115200
-});
-const portNames = ['/dev/cu.usbserial-0001', '/dev/cu.usbserial-0002', '/dev/cu.usbserial-210', '/dev/cu.wchusbserial210', 'COM1', 'COM2', 'COM3', 'COM4'];
-let accumulatedData = '';
-function parseData(data, portName) {
-    const regex = /^mroee;S\/N(\d+)/;
-    const match = data.match(regex);
-    if (match) {
-        receivedData = true;
-        const [, serialNumber] = match;
-        console.log(`Найдено соответствие на порту ${portName}: serialNumber = ${serialNumber}`);
-        document.getElementById('serialNumber').innerHTML = "S/N: " + serialNumber;
-    }
-}
-function connectTo(portName) {
-    return __awaiter(this, void 0, void 0, function* () {
-        port = new SerialPort({
-            path: portName,
+class Connector {
+    constructor() {
+        this.isConnected = true;
+        this.receivedData = false;
+        this.globalPortName = '';
+        this.globalPort = new SerialPort({
+            path: 'COM1',
             baudRate: 115200
         });
-        port.write('sendConnect');
-        port.on('open', () => {
-            globalPort = port;
-            globalPortName = portName;
-            isConnected = true; //-----
+        this.port = new SerialPort({
+            path: 'COM1',
+            baudRate: 115200
         });
-        return new Promise((resolve, reject) => {
-            port.on('error', (err) => {
-                isConnected = false; //-----
-                //console.log(`Ошибка на порту ${portName}: ${err.message}`);
-                reject(err);
+        this.portNames = ['/dev/cu.usbserial-0001', '/dev/cu.usbserial-0002', '/dev/cu.usbserial-210', '/dev/cu.usbserial-10', '/dev/cu.wchusbserial210', '/dev/cu.wchusbserial10', 'COM1', 'COM2', 'COM3', 'COM4'];
+        this.accumulatedData = '';
+        this.globalPort.on('close', () => {
+            this.isConnected = false;
+        });
+        this.globalPort.on('error', () => {
+            this.isConnected = false;
+        });
+    }
+    parseData(data, portName) {
+        const regex = /^mroee;S\/N(\d+)/;
+        const match = data.match(regex);
+        if (match) {
+            this.receivedData = true;
+            const [, serialNumber] = match;
+            console.log(`Найдено соответствие на порту ${portName}: serialNumber = ${serialNumber}`);
+            document.getElementById('serialNumber').innerHTML = "S/N: " + serialNumber;
+        }
+    }
+    connectTo(portName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.port = new SerialPort({
+                path: portName,
+                baudRate: 115200
+            });
+            this.port.write('sendConnect');
+            this.port.on('open', () => {
+                this.globalPort = this.port;
+                this.globalPortName = portName;
+                this.isConnected = true; //-----
+            });
+            return new Promise((resolve, reject) => {
+                this.port.on('error', (err) => {
+                    this.isConnected = false; //-----
+                    //console.log(`Ошибка на порту ${portName}: ${err.message}`);
+                    reject(err);
+                });
             });
         });
-    });
-}
-function readData() {
-    return __awaiter(this, void 0, void 0, function* () {
-        globalPort.on('data', (data) => {
-            const dataStr = data.toString();
-            accumulatedData += dataStr;
-            parseData(accumulatedData, globalPortName);
-        });
-        globalPort.on('close', function () {
-            isConnected = false;
-        });
-        return new Promise((resolve, reject) => {
-            globalPort.on('error', (err) => {
-                isConnected = false; //-----
-                //console.log(`Ошибка на порту ${globalPortName}: ${err.message}`);
-                reject(err);
+    }
+    readData() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.globalPort.on('data', (data) => {
+                const dataStr = data.toString();
+                this.accumulatedData += dataStr;
+                this.parseData(this.accumulatedData, this.globalPortName);
             });
+            this.globalPort.on('close', () => {
+                this.isConnected = false;
+            });
+            // return new Promise<void>((resolve, reject) => {
+            //     this.globalPort.on('error', (err: { message: any; }) => {
+            //         this.isConnected = false;
+            //         reject(err);
+            //     });
+            // });
         });
-    });
+    }
+    connect() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.isConnected) {
+                console.log("attempt");
+                for (const portName of this.portNames) {
+                    try {
+                        yield this.connectTo(portName);
+                    }
+                    catch (err) {
+                        //console.log(err);
+                    }
+                }
+            }
+            else {
+                if (!this.receivedData) {
+                    try {
+                        yield this.readData();
+                    }
+                    catch (err) {
+                        //console.log(err);
+                    }
+                }
+                else {
+                    //await readData();
+                    this.port.removeAllListeners('error');
+                    this.port.removeAllListeners('open');
+                }
+            }
+            if (this.isConnected) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        });
+    }
+    connected() {
+        return this.isConnected;
+    }
+    getGlobalPort() {
+        return this.globalPort;
+    }
 }
-function main() {
-    var _a, _b;
+let connector = new Connector();
+let isConnected = connector.connected();
+let connectionWindowOpened = false;
+let globalPort = connector.getGlobalPort();
+function connectionCheck() {
+    var _a, _b, _c, _d;
     return __awaiter(this, void 0, void 0, function* () {
-        //console.log("Port opened: " + globalPort.isOpen + " Connected: " + isConnected);
-        if (isConnected) {
+        globalPort = connector.getGlobalPort();
+        if (yield connector.connect()) {
             closeModalWindow('connection');
             (_a = document.getElementById("disconnectedMessage")) === null || _a === void 0 ? void 0 : _a.classList.add("hidden");
             document.getElementById("connectionIcon").style.backgroundImage = "url(resources/icons/connected.png)";
@@ -115,52 +167,21 @@ function main() {
             connectionWindowOpened = false;
         }
         else {
-            // if (!connectionWindowOpened) {
-            //   showModalWindow('connection');
-            //   document.getElementById("disconnectedMessage")?.classList.remove("hidden");
-            //   document.getElementById("connectionIcon")!.style.backgroundImage = "url(resources/icons/disconnected.png)";
-            //   document.getElementById("preview")?.classList.add("blurredPreview");
-            //   document.getElementById("popupMessage")!.innerText = "Отключено";
-            //   document.querySelectorAll<HTMLElement>(".hidableInfo").forEach(element => {
-            //     element.style.display = "none";
-            //   });
-            //   connectionWindowOpened = true;
-            // }
-        }
-        if (!isConnected) {
-            for (const portName of portNames) {
-                try {
-                    yield connectTo(portName);
-                }
-                catch (err) {
-                    //console.log(err);
-                }
-            }
-        }
-        else {
-            if (!receivedData) {
-                try {
-                    yield readData();
-                }
-                catch (err) {
-                    //console.log(err);
-                }
-            }
-            else {
-                //await readData();
-                port.removeAllListeners('error');
-                port.removeAllListeners('open');
+            if (!connectionWindowOpened) {
+                showModalWindow('connection');
+                (_c = document.getElementById("disconnectedMessage")) === null || _c === void 0 ? void 0 : _c.classList.remove("hidden");
+                document.getElementById("connectionIcon").style.backgroundImage = "url(resources/icons/disconnected.png)";
+                (_d = document.getElementById("preview")) === null || _d === void 0 ? void 0 : _d.classList.add("blurredPreview");
+                document.getElementById("popupMessage").innerText = "Отключено";
+                document.querySelectorAll(".hidableInfo").forEach(element => {
+                    element.style.display = "none";
+                });
+                connectionWindowOpened = true;
             }
         }
     });
 }
-globalPort.on('close', function () {
-    isConnected = false;
-});
-globalPort.on('error', function () {
-    isConnected = false;
-});
-setInterval(() => main(), 1500);
+setInterval(() => connectionCheck(), 1500);
 const fs = __importStar(require("fs"));
 class JsonEditor {
     constructor(filePath) {
@@ -173,7 +194,6 @@ class JsonEditor {
             return JSON.parse(data);
         }
         catch (error) {
-            // Если файл не существует или возникает ошибка при чтении, возвращаем пустой массив
             return [];
         }
     }
@@ -194,13 +214,24 @@ class JsonEditor {
             console.info(`Object with id ${id} not found.`);
         }
     }
-    createObject(id, icon, shortcut) {
+    createButtonObject(id, icon, shortcut) {
         const existingObj = this.findObjectById(id);
         if (existingObj) {
             console.info(`Object with id ${id} already exists.`);
         }
         else {
             const newObj = { id, icon, shortcut };
+            this.jsonData.push(newObj);
+            this.saveJsonData();
+        }
+    }
+    createModeObject(id, mode) {
+        const existingObj = this.findObjectById(id);
+        if (existingObj) {
+            console.info(`Object with id ${id} already exists.`);
+        }
+        else {
+            const newObj = { id, mode };
             this.jsonData.push(newObj);
             this.saveJsonData();
         }
@@ -255,6 +286,20 @@ class JsonEditor {
         }
     }
 }
+const brightnessToggle = document.getElementById('brightnessToggle');
+const images = ["resources/icons/maxBr.png", "resources/icons/autoBr.png", "resources/icons/moon.png"];
+let currentBrMode = 1;
+function toggleImage() {
+    const currentImage = images[currentBrMode];
+    console.log(currentBrMode);
+    globalPort.write("dim" + (currentBrMode + 1));
+    console.log("dim" + (currentBrMode + 1));
+    brightnessToggle.style.backgroundImage = `url('${currentImage}')`;
+    currentBrMode = (currentBrMode + 1) % images.length;
+}
+brightnessToggle.addEventListener('click', () => {
+    toggleImage();
+});
 const jsonFilePath = 'resources/config/config.json';
 const editor = new JsonEditor(jsonFilePath);
 function importShortcuts() {
@@ -264,14 +309,23 @@ function importShortcuts() {
     });
     update();
 }
+function loadDimMode() {
+    // let mode = editor.getShortcuts();
+    // shortcuts!.forEach(shortcut => {
+    //   addCombination(shortcut);
+    // });
+    // update();
+}
 //editor.editAttributeById('someId', 'icon', 'newIcon');
 addEventListener("load", (event) => {
-    editor.createObject('button1', 'copy', 'meta;c');
-    editor.createObject('button2', 'paste', 'meta;v');
-    editor.createObject('button3', 'moon', 'meta;control;d');
-    editor.createObject('button4', 'lock', 'meta;shift;q');
+    editor.createButtonObject('button1', 'copy', 'meta;c');
+    editor.createButtonObject('button2', 'paste', 'meta;v');
+    editor.createButtonObject('button3', 'moon', 'meta;control;d');
+    editor.createButtonObject('button4', 'lock', 'meta;shift;q');
+    editor.createModeObject('dimMode', '2');
     editor.createShortcutsList();
     importShortcuts();
+    loadDimMode();
     for (let i = 1; i < 5; i++) {
         const iconBox = document.getElementById("iconBox" + i).querySelectorAll(".previewIcon")[0];
         const iconPath = `url(resources/icons/${editor.findObjectById("button" + i)["icon"]}.png)`;
@@ -293,9 +347,6 @@ function getIconIndex(iconName) {
     console.log("1 " + index);
     return index !== -1 ? index : undefined;
 }
-// const namesByCategory: IconCategories = {
-//   'Значки': ['Копировать', 'Вставить', 'Без звука', 'Громкость +', 'Громкость -', 'Пауза', 'Продолжить', 'Назад', 'Вперёд', 'Снимок экрана', 'Поиск', 'Не беспокоить', 'Заблокировать'],
-// };
 let popups = [];
 class SettingsPopup {
     getMenuHTML(category) {
@@ -315,23 +366,6 @@ class SettingsPopup {
         this.menu = document.createElement("div");
         this.element = element;
         this.numberOfScreen = this.element.id.substring(7, 8);
-        // <div class="categories">
-        //         <div class="category iconsCategory"><p>Значки</p></div>
-        //         <div class="category functionsCategory"><p>Виджеты</p></div>
-        //       </div>
-        // const menuHTML = `
-        //       <div class="column iconsColumn">
-        //         ${iconNames.map((name, index) => `
-        //             <div class="listElement iconElement button" onClick="handleIconClick(${this.numberOfScreen}, ${index});">
-        //                 <div class="icon" style="background-image: url(resources/icons/${name}.png);"></div>
-        //                 <p>${names[index]}</p>
-        //             </div>
-        //         `).join('')}
-        //       </div>
-        //       <div class="column functionsCloumn">
-        //       </div>
-        // `;
-        // this.menu.innerHTML += menuHTML;
         popups.push(this);
         this.element.addEventListener('click', () => this.operateMenu());
     }
@@ -516,17 +550,38 @@ function clearCombination() {
 }
 const emptyCombinationsHint = document.getElementById('emptyCombinationsHint');
 function addCombination(text) {
-    const combinationDiv = document.createElement("div");
-    const combinationTextBlock = document.createElement("p");
-    combinationDiv.classList.add("combination");
-    combinationDiv.classList.add("button");
-    combinationTextBlock.innerHTML = text;
+    const combinationBlock = document.createElement("div");
+    const combinationTextWrapper = document.createElement("div");
+    combinationBlock.classList.add("combination");
+    combinationBlock.classList.add("button");
+    combinationTextWrapper.classList.add("combinationTextWrapper");
+    combinationTextWrapper.innerHTML = "<p>" + text + "</p>";
     const combinationRemoveButton = document.createElement("div");
     combinationRemoveButton.classList.add("combinationRemoveButton");
-    combinationDiv.appendChild(combinationRemoveButton);
-    combinationDiv.appendChild(combinationTextBlock);
-    combinationsBox.appendChild(combinationDiv);
-    combinationDiv.addEventListener("click", () => removeCombination(combinationDiv));
+    combinationBlock.appendChild(combinationTextWrapper);
+    combinationBlock.appendChild(combinationRemoveButton);
+    combinationBlock.addEventListener("click", () => removeCombination(combinationBlock));
+    combinationBlock.appendChild(combinationTextWrapper);
+    combinationsBox.appendChild(combinationBlock);
+    setTimeout(() => combinationBlock.classList.remove("hiddenCombination"), 10);
+    buttonsCount = 0;
+    if (navigator.platform.includes("Mac")) {
+        combinationTextWrapper.innerHTML = combinationTextWrapper.innerHTML
+            .replace(/META/g, '</p><div class="combinationIcon" style="background-image: url(resources/icons/command.png)"></div><p>')
+            .replace(/ALT/g, '</p><div class="combinationIcon" style="background-image: url(resources/icons/option.png)"></div><p>');
+        // .replace(/CONTROL/g, '<div class="combinationIcon" style="background-image: url(resources/icons/control.png)"></div>');
+    }
+    document.querySelectorAll(".combinationTextWrapper p").forEach(p => {
+        if (p.innerHTML === "") {
+            p.remove();
+        }
+    });
+    const hiddenText = document.createElement("p");
+    hiddenText.classList.add("hiddenCombText");
+    hiddenText.innerText = text;
+    combinationBlock.appendChild(hiddenText);
+    combinationsBox.appendChild(combinationBlock);
+    combinationBlock.addEventListener("click", () => removeCombination(combinationBlock));
 }
 function saveCombination() {
     const divs = keysInputBox.querySelectorAll("div");
@@ -534,12 +589,13 @@ function saveCombination() {
     divs.forEach((div) => {
         if (div !== clearButton && div !== saveButton && div !== saveButtonBack[0]) {
             const innerText = div.innerText.trim();
-            if (/^[a-zA-Z]+$/.test(innerText)) {
+            // Исправленное регулярное выражение
+            if (/^[a-zA-Z0-9<>\[\].;'",]+$/.test(innerText)) {
                 innerTextArray.push(innerText);
             }
         }
     });
-    let combinationText = innerTextArray.join(" + ");
+    let combinationText = innerTextArray.join(" ");
     if (combinationText == null) {
         combinationText = "";
     }
@@ -554,27 +610,39 @@ function saveCombination() {
     skeletons.forEach(element => {
         element.style.display = "none";
     });
-    //combinationsBox!.style.backgroundImage = "url()";
     divs.forEach((div) => {
         if (div != clearButton && div != saveButton && div != saveButtonBack[0]) {
             div.remove();
         }
     });
     clearButton.style.opacity = "0";
-    const combinationDiv = document.createElement("div");
-    const combinationTextBlock = document.createElement("p");
-    combinationDiv.classList.add("combination");
-    combinationDiv.classList.add("hiddenCombination");
-    combinationDiv.classList.add("button");
-    combinationTextBlock.innerHTML = combinationText;
+    const combinationBlock = document.createElement("div");
+    const combinationTextWrapper = document.createElement("div"); // Дополнительный div
+    combinationBlock.classList.add("combination");
+    combinationBlock.classList.add("hiddenCombination");
+    combinationBlock.classList.add("button");
+    combinationTextWrapper.classList.add("combinationTextWrapper");
+    combinationTextWrapper.innerHTML = "<p>" + combinationText + "</p>";
     const combinationRemoveButton = document.createElement("div");
     combinationRemoveButton.classList.add("combinationRemoveButton");
-    combinationDiv.appendChild(combinationRemoveButton);
-    combinationDiv.appendChild(combinationTextBlock);
-    combinationsBox.appendChild(combinationDiv);
-    combinationDiv.addEventListener("click", () => removeCombination(combinationDiv));
-    setTimeout(() => combinationDiv.classList.remove("hiddenCombination"), 10);
+    combinationBlock.appendChild(combinationTextWrapper);
+    combinationBlock.appendChild(combinationRemoveButton);
+    combinationBlock.addEventListener("click", () => removeCombination(combinationBlock));
+    combinationBlock.appendChild(combinationTextWrapper);
+    combinationsBox.appendChild(combinationBlock);
+    setTimeout(() => combinationBlock.classList.remove("hiddenCombination"), 10);
     buttonsCount = 0;
+    if (navigator.platform.includes("Mac")) {
+        combinationTextWrapper.innerHTML = combinationTextWrapper.innerHTML
+            .replace(/META/g, '</p><div class="combinationIcon" style="background-image: url(resources/icons/command.png)"></div><p>')
+            .replace(/ALT/g, '</p><div class="combinationIcon" style="background-image: url(resources/icons/option.png)"></div><p>');
+        // .replace(/CONTROL/g, '<div class="combinationIcon" style="background-image: url(resources/icons/control.png)"></div>');
+    }
+    document.querySelectorAll(".combinationTextWrapper p").forEach(p => {
+        if (p.innerHTML === "") {
+            p.remove();
+        }
+    });
 }
 let listenKeys = false;
 //keysInputBox.addEventListener("click", keysListener);
@@ -723,49 +791,6 @@ function copyCombinations(source, target) {
         button.remove();
     });
 }
-/*const noble = require('@abandonware/noble');
-const readline = require('readline');
-
-// Инициализация noble
-noble.on('stateChange', (state: string) => {
-  if (state === 'poweredOn') {
-    // Начинаем поиск устройств с заданным именем (например, "mroee")
-    noble.startScanning([], true);
-  } else {
-    noble.stopScanning();
-  }
-});
-
-// Обработка обнаруженных устройств
-noble.on('discover', (peripheral: { advertisement: { localName: string; txPowerLevel: string }; }) => {
-  //console.log("------ " + peripheral.advertisement.localName);
-  // Проверяем имя устройства
-  if (peripheral.advertisement.localName === 'mroee') {
-
-    // Подключаемся к устройству
-    noble.stopScanning();
-    connectToDevice(peripheral);
-  }
-});
-
-// Функция подключения к устройству
-function connectToDevice(peripheral: { advertisement?: { localName: string; }; connect?: any; disconnect?: any; }) {
-  peripheral.connect((error: any) => {
-    if (error) {
-      console.error('Ошибка подключения к устройству:', error);
-      return;
-    }
-
-    console.log('Успешное подключение к устройству!');
-
-    sendStringToDevice(peripheral);
-  });
-}
-
-function sendStringToDevice(peripheral: { advertisement?: { localName: string; } | undefined; connect?: any; disconnect?: any; discoverServices?: any; }) {
-  let characteristics = peripheral.discoverServices();
-  //alert(characteristics);
-}*/
 class DraggableElement {
     constructor(element) {
         this.underDroppable = false;
@@ -786,7 +811,6 @@ class DraggableElement {
         this.originY = this.element.getBoundingClientRect().top;
         const shiftX = event.clientX - this.element.getBoundingClientRect().left;
         const shiftY = event.clientY - this.element.getBoundingClientRect().top;
-        //event.clientX - ball!.getBoundingClientRect().left - 42;
         this.shiftX = shiftX;
         this.shiftY = shiftY;
         this.clone = this.element.cloneNode(true);
@@ -807,12 +831,10 @@ class DraggableElement {
                 preview.classList.add("dashedPreview");
             });
             this.moveAt(event.pageX, event.pageY);
-            //this.clone!.hidden = true;
             this.clone.style.display = "none";
             const elemBelow = document.elementFromPoint(event.clientX, event.clientY);
             this.clone.style.display = "block";
-            //this.clone!.hidden = false;
-            console.log(elemBelow === null || elemBelow === void 0 ? void 0 : elemBelow.innerHTML);
+            // console.log(elemBelow?.innerHTML);
             if (!elemBelow)
                 return;
             const droppableBelow = elemBelow.closest('.droppable');
@@ -843,7 +865,7 @@ class DraggableElement {
             }
             else {
                 const numberOfScreen = this.underElement.id.substring(7, 8);
-                const shortcut = this.textToShortcut(this.clone.querySelectorAll("p")[0].innerText);
+                const shortcut = this.textToShortcut(this.clone.querySelectorAll(".hiddenCombText")[0].innerText);
                 globalPort.write("s" + numberOfScreen + "sc" + shortcut);
                 console.log("s" + numberOfScreen + "sc" + shortcut);
                 editor.editAttributeById(("button" + numberOfScreen), "shortcut", shortcut);
@@ -885,17 +907,8 @@ class DraggableElement {
         this.underDroppable = false;
     }
     textToShortcut(text) {
-        return text.replace(/(\s)\+(\s)/g, ';').toLowerCase();
+        return text.replace(/(\s)/g, ';').toLowerCase();
     }
 }
-const brightnessToggle = document.getElementById('brightnessToggle');
-const images = ["resources/icons/maxBr.png", "resources/icons/autoBr.png", "resources/icons/moon.png"];
-let currentImageIndex = 1;
-function toggleImage() {
-    const currentImage = images[currentImageIndex];
-    brightnessToggle.style.backgroundImage = `url('${currentImage}')`;
-    currentImageIndex = (currentImageIndex + 1) % images.length;
-}
-brightnessToggle.addEventListener('click', () => {
-    toggleImage();
-});
+setTimeout(() => { var _a; return (_a = document.getElementById('preloader')) === null || _a === void 0 ? void 0 : _a.classList.add('hiddenPreloader'); }, 2000);
+setTimeout(() => document.getElementById('logoAnimation').style.display = "none", 2300);

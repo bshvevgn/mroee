@@ -9,10 +9,13 @@
 #include "GyverTimer.h"
 #include "GyverButton.h"
 #include "icons.h"
+#include <HardwareSerial.h>
 
 /* Confuguration section */
 #define DIM_ENABLED true
 #define DEVICE_INFO "mroee;S/N092300001"
+
+HardwareSerial SerialPort(2);
 
 #define BTN1 4
 #define BTN2 34
@@ -45,6 +48,8 @@ const uint8_t INITIAL_ICON_WIDTH = 60;
 const uint8_t INITIAL_ICON_HEIGHT = 60;
 const uint8_t TARGET_ICON_WIDTH = 60;
 const uint8_t TARGET_ICON_HEIGHT = 60;
+
+int dimMode = 2;
 
 #define MAX_KEY_LENGTH 16
 #define MAX_VALUE_LENGTH 32
@@ -165,7 +170,11 @@ void restoreState() {
 void setup() {
   Serial.begin(115200);
   Serial.setTimeout(10);
-  Serial.println(DEVICE_INFO);
+
+  SerialPort.begin(115200, SERIAL_8N1, 16, 17);
+  SerialPort.setTimeout(10);
+
+  SerialPort.println(DEVICE_INFO);
 
   pinMode(5, OUTPUT);
   pinMode(36, INPUT);
@@ -176,7 +185,7 @@ void setup() {
   digitalWrite(5, HIGH);
 
   Wire.begin();
-  connectionTimer.setInterval(500);
+  connectionTimer.setInterval(5000);
   brTimer.setInterval(100);
   Serial.println("Starting mroee controller");
   Serial.println(DEVICE_INFO);
@@ -205,7 +214,7 @@ void setup() {
   preferences.begin("iconStorage", false);
   restoreState();
   keyboard.begin();
-  Serial.println("Ready");
+  SerialPort.println("Ready");
 
   TCA9548A(2);
   display1.clearDisplay();
@@ -218,6 +227,7 @@ void loop() {
   butt4.tick();
 
   if (connectionTimer.isReady()) {
+    SerialPort.println(DEVICE_INFO);
     //Serial.println(DEVICE_INFO);
     //TCA9548A(4);
     //display1.setRotation(2);
@@ -226,7 +236,7 @@ void loop() {
     //display1.display();
   };
 
-  if (DIM_ENABLED) {
+  if (dimMode == 2) {
     if (brTimer.isReady()) {
       //Serial.println(analogRead(36));
       if (analogRead(36) > 10) {
@@ -237,30 +247,30 @@ void loop() {
     }
   }
 
-
   if (butt1.isClick()) {
     Serial.println("1st");
+    SerialPort.println("1st");
     executeShortcut(collection.get("1"));
     delay(300);
   }
   if (butt2.isClick()) {
-    Serial.println("2nd");
+    SerialPort.println("2nd");
     executeShortcut(collection.get("2"));
     delay(300);
   }
   if (butt3.isClick()) {
-    Serial.println("3rd");
+    SerialPort.println("3rd");
     executeShortcut(collection.get("3"));
     delay(300);
   }
   if (butt4.isClick()) {
-    Serial.println("4th");
+    SerialPort.println("4th");
     executeShortcut(collection.get("4"));
     delay(300);
   }
 
-  if (Serial.available() > 0) {
-    String received = Serial.readString();  //read until timeout
+  if (SerialPort.available() > 0) {
+    String received = SerialPort.readString();
     received.trim();
     parseString(received);
   }
@@ -308,8 +318,8 @@ void parseAndPressKeys(String command) {
   }
 
   for (int i = 0; i < index; i++) {
-    Serial.print("Button: ");
-    Serial.println(tokens[i]);
+    SerialPort.print("Button: ");
+    SerialPort.println(tokens[i]);
   }
 
   for (int i = 0; i < index; i++) {
@@ -431,18 +441,21 @@ void parseString(String str) {
 void parseLine(String line) {
   int screen, icon;
   int pressed;
+  int mode;
   String shortcut;
 
   if (line == "sendConnect") {
-    Serial.println(DEVICE_INFO);
-    delay(100);
-    Serial.println(DEVICE_INFO);
+    SerialPort.println(DEVICE_INFO);
   } else {
     if (sscanf(line.c_str(), "s%di%d", &screen, &icon) == 2) {
       changeIcon(screen, icon);
     } else if (sscanf(line.c_str(), "p%d", &pressed) == 1) {
       String pressedS = String(pressed);
       executeShortcut(collection.get(pressedS.c_str()));
+    } else if (sscanf(line.c_str(), "dim%d", &mode) == 1) {
+      dimMode = mode;
+      if(dimMode == 1) setHighBrightness();
+      if(dimMode == 3) setLowBrightness();
     } else {
       String input = line;
       if (input.startsWith("s") && input.indexOf("sc") != -1) {
@@ -456,10 +469,10 @@ void parseLine(String line) {
           saveShortcutState(key.toInt(), value);
           collection.add(key.c_str(), value.c_str());
 
-          Serial.print("Screen: ");
-          Serial.print(key.c_str());
-          Serial.print(" Shortcut: ");
-          Serial.print(value.c_str());
+          SerialPort.print("Screen: ");
+          SerialPort.print(key.c_str());
+          SerialPort.print(" Shortcut: ");
+          SerialPort.print(value.c_str());
           return;
         }
       }
@@ -470,10 +483,10 @@ void parseLine(String line) {
 
 void changeIcon(uint8_t screenNumber, uint8_t iconNumber) {
   saveIconState(screenNumber, iconNumber);
-  Serial.print("Changing: ");
-  Serial.print(screenNumber);
-  Serial.print(" Icon: ");
-  Serial.println(iconNumber);
+  SerialPort.print("Changing: ");
+  SerialPort.print(screenNumber);
+  SerialPort.print(" Icon: ");
+  SerialPort.println(iconNumber);
 
   const unsigned char* icon = getIcon(iconNumber);
 

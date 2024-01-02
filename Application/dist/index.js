@@ -18,7 +18,7 @@ function createWindows() {
         webPreferences: {
             preload: __dirname + "/preload.js",
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false,
         },
         show: false,
         titleBarStyle: 'hidden',

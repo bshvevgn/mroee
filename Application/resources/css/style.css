@@ -45,6 +45,7 @@ h1, h2{
 
 p{
     font-weight: 200;
+    font-size: 16px;
 }
 
 .dragArea{
@@ -262,10 +263,10 @@ aside{
     height: calc(100vh - 260px);
     max-width: 5000px;
     transform: scale(1);
-    transition: opacity 300ms 200ms, max-width 0ms 200ms, transform 300ms 200ms, filter 300ms 200ms;
+    /* transition: opacity 300ms 200ms, max-width 0ms 200ms, transform 300ms 200ms, filter 300ms 200ms; */
 }
 
-.content{
+/* .content{
     width: calc(100vw - 180px);
     padding: 10px 40px 30px 140px;
     position: absolute;
@@ -296,7 +297,7 @@ aside{
     max-width: 0px!important;
     transition: opacity 300ms 0ms, max-width 0ms 0ms, padding 0ms 0ms, transform 300ms 0ms, filter 300ms 0ms!important;
     opacity: 0;
-}
+} */
 
 .doneMark{
     position: absolute;
@@ -311,7 +312,7 @@ aside{
     filter: drop-shadow(0px 0px 20px rgba(255, 255, 255, 0.5));
 }
 
-/* .content{
+.content{
     width: calc(100vw - 180px);
     padding: 10px 40px 30px 140px;
     position: absolute;
@@ -321,16 +322,16 @@ aside{
     height: calc(100vh - 140px);
     max-width: 5000px;
     transform: translate(0px, 0px);
-    transition: opacity 300ms 200ms, max-width 0ms 200ms, transform 300ms 200ms, filter 300ms 200ms;
+    transition: opacity 300ms 200ms, max-width 0ms 200ms, transform 700ms 200ms cubic-bezier(0, 0, 0.12, 0.94), filter 300ms 200ms;
 }
 
 .hiddenContent{
     padding: 0!important;
     touch-action: none;
-    transform: translate(-50px, 0px)!important;
-    filter: blur(14px)!important;
+    transform: translate(-30px, 0px)!important;
+    filter: blur(20px)!important;
     max-width: 0px!important;
-    transition: opacity 300ms 0ms, max-width 0ms 300ms, padding 0ms 300ms, transform 300ms 0ms, filter 300ms 0ms!important;
+    transition: opacity 300ms 0ms, max-width 0ms 300ms, padding 0ms 500ms, transform 1000ms 0ms ease-in, filter 300ms 0ms!important;
     opacity: 0;
 }
 
@@ -338,11 +339,11 @@ aside{
     padding: 0!important;
     touch-action: none;
     transform: translate(50px, 0px)!important;
-    filter: blur(14px)!important;
+    filter: blur(20px)!important;
     max-width: 0px!important;
-    transition: opacity 300ms 0ms, max-width 0ms 0ms, padding 0ms 0ms, transform 300ms 0ms, filter 300ms 0ms!important;
+    transition: opacity 300ms 0ms, max-width 0ms 0ms, padding 0ms 0ms, transform 1000ms 0ms cubic-bezier(0, 0, 0.25, 0.97), filter 300ms 0ms!important;
     opacity: 0;
-} */
+}
 
 .pageHead{
     width: calc(100% - 0px);
@@ -956,6 +957,7 @@ aside{
 .combination p, .terminalCommand .p{
     margin: 0px;
     transition: .3s;
+    word-spacing: 4px;
 }
 
 .combinationSkeleton{
@@ -974,13 +976,13 @@ aside{
 
 
 
-.combination:hover p, .terminalCommand:hover p{
+.combination:hover .combinationTextWrapper, .terminalCommand:hover p{
     transform: scale(1.1);
     filter: blur(4px);
     opacity: 0;
 }
 
-.draggable p, .draggable:hover p{
+.draggable .combinationTextWrapper, .draggable:hover .combinationTextWrapper{
     transform: scale(1)!important;
     opacity: 1!important;
     filter: blur(0px)!important;
@@ -1106,6 +1108,35 @@ aside{
 
 #brightnessToggle.minBr{
     background-image: url(../icons/moon.png);
+}
+
+.combinationIcon{
+    height: 18px;
+    width: 18px;
+    margin: 0px 6px;
+    background-size: contain;
+    background-position: center;
+    margin-bottom: 2px;
+}
+
+.combinationIcon:first-child{
+    margin: 0px 4px 0px 0px;
+}
+
+.combinationIcon:last-child{
+    margin: 0px 0px 0px 4px;
+}
+
+.combinationTextWrapper{
+    display: flex;
+    flex-direction: row;
+    opacity: .9;
+    transition: .3s;
+    align-items: center;
+}
+
+.hiddenCombText{
+    display: none;
 }
 
 @keyframes shake {

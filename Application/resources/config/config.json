@@ -2,35 +2,36 @@
   {
     "id": "button1",
     "icon": "share",
-    "shortcut": "shift;meta;space"
+    "shortcut": "alt;meta"
   },
   {
     "id": "button2",
-    "icon": "trash",
-    "shortcut": "shift;meta;space"
+    "icon": "rename",
+    "shortcut": "volumeup"
   },
   {
     "id": "button3",
-    "icon": "info",
-    "shortcut": "meta;f"
+    "icon": "mic",
+    "shortcut": "alt;meta"
   },
   {
     "id": "button4",
-    "icon": "p-in-p",
-    "shortcut": "shift;control;space"
+    "icon": "close",
+    "shortcut": "meta;q"
   },
   {
     "id": "shortcutsList",
     "list": [
-      "META + Z",
-      "META + SHIFT + Z",
-      "META + Q",
-      "SHIFT + META + SPACE",
-      "SHIFT + META + W",
-      "CONTROL + META + SPACE",
-      "META + SPACE + F",
-      "META + F",
-      "SHIFT + M"
+      "ALT META",
+      "ALT META",
+      "W E META D",
+      "W E F META W",
+      "ALT META",
+      "META Q"
     ]
+  },
+  {
+    "id": "dimMode",
+    "mode": "2"
   }
 ]
