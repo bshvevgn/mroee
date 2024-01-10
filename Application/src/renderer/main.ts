@@ -53,12 +53,12 @@ class Connector {
         this.port.on('open', () => {
             this.globalPort = this.port;
             this.globalPortName = portName;
-            this.isConnected = true; //-----
+            this.isConnected = true;
         });
 
         return new Promise<void>((resolve, reject) => {
             this.port.on('error', (err: { message: any; }) => {
-                this.isConnected = false; //-----
+                this.isConnected = false;
                 //console.log(`Ошибка на порту ${portName}: ${err.message}`);
                 reject(err);
             });
@@ -347,11 +347,7 @@ addEventListener("load", (event) => {
     const iconPath = `url(resources/icons/${editor.findObjectById("button" + i)!["icon"]}.png)`;
 
     iconBox.style.backgroundImage = iconPath;
-    //alert(iconBox.style.backgroundImage);
   }
-
-  //alert(document.getElementById("iconBox1")!.querySelectorAll<HTMLElement>(".previewIcon")[0].style.backgroundImage);
-  //alert(document.getElementById("iconBox1")!.querySelectorAll<HTMLElement>(".previewIcon")[0].classList);
 });
 
 interface IconCategories {
